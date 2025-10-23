@@ -1,0 +1,60 @@
+﻿@page
+@model IndexModel
+
+@using Microsoft.AspNetCore.Identity
+@using Persistence.Models
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+
+    bool isSignedIn = SignInManager.IsSignedIn(User);
+
+    User? currentUser = null;
+    bool isCurrentUserNull = true;
+
+    if (!isSignedIn)
+    {
+        await SignInManager.SignOutAsync();
+        return;
+    }
+
+    currentUser = await UserManager.GetUserAsync(User);
+    isCurrentUserNull = currentUser == null;
+
+    if ( currentUser == null)
+    {
+        await SignInManager.SignOutAsync();
+        return;
+    }
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                @{
+                    var displayName = $"{currentUser.FirstName} {currentUser.LastName}";
+                }
+
+                <input value="@displayName" class="form-control" placeholder="Please choose your username." disabled  />
+                <label asp-for="Username" class="form-label"></label>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
+                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

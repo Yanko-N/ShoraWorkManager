@@ -9,7 +9,6 @@ namespace ShoraWorkManager
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
             //Add Application Services
             builder.Services.AddApplicationServices(builder.Configuration);

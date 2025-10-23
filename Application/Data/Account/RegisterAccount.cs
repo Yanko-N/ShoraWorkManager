@@ -42,7 +42,6 @@ namespace Application.Data.Account
             {
                 try
                 {
-
                     if (request.Password != request.ConfirmPassword)
                     {
                         return Result<User>.Failure("Password and Confirm Password do not match.");
@@ -69,7 +68,7 @@ namespace Application.Data.Account
 
                     var username = $"{request.FirstName}-{request.LastName}-{Guid.NewGuid()}";
 
-                    await _userStore.SetUserNameAsync(user, request.Email, CancellationToken.None);
+                    await _userStore.SetUserNameAsync(user, username, CancellationToken.None);
                     await _emailStore.SetEmailAsync(user, request.Email, CancellationToken.None);
 
                     user.FirstName = request.FirstName;
@@ -78,11 +77,9 @@ namespace Application.Data.Account
 
                     var result = await _userManager.CreateAsync(user, request.Password);
 
-
                     if (result.Succeeded)
                     {
                         await _userManager.AddToRoleAsync(user, AppConstants.Roles.Admin);
-
 
                         _logger.LogInformation("User created a new account with password.");
                         var userId = await _userManager.GetUserIdAsync(user);

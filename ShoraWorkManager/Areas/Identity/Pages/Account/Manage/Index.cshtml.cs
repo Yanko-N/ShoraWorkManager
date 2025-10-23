@@ -11,24 +11,39 @@ using ShoraWorkManager.Models;
 
 namespace ShoraWorkManager.Areas.Identity.Pages.Account.Manage
 {
-    public class ChangePasswordModel : PageModel
+    public class IndexModel : PageModel
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IMediator _mediator;
-
-        public ChangePasswordModel(IMediator mediator,UserManager<User> userManager,SignInManager<User> signInManager)
+        public IndexModel(IMediator mediator,UserManager<User> userManager
+            ,SignInManager<User> signInManager)
         {
-            _mediator = mediator;
             _userManager = userManager;
             _signInManager = signInManager;
+            _mediator = mediator;
         }
 
-        [BindProperty]
-        public ChangePasswordViewModel Input { get; set; }
+        public string Username { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
+
+        [BindProperty]
+        public AccountIndexViewModel Input { get; set; }
+
+        private async Task LoadAsync(User user)
+        {
+            var userName = await _userManager.GetUserNameAsync(user);
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+
+            Username = userName;
+
+            Input = new AccountIndexViewModel
+            {
+                PhoneNumber = phoneNumber
+            };
+        }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -38,38 +53,36 @@ namespace ShoraWorkManager.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var hasPassword = await _userManager.HasPasswordAsync(user);
-            if (!hasPassword) //If there is no password we must sign out this user
-            {
-                await _signInManager.SignOutAsync();
-            }
-
+            await LoadAsync(user);
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var result = await _mediator.Send(new Application.Data.Account.ChangePassword.Command()
+            if (!ModelState.IsValid)
             {
-                OldPassword = Input.OldPassword,
-                NewPassword = Input.NewPassword,
-                UserClaims = User
+                await LoadAsync(user);
+                return Page();
+            }
+
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+
+            var result = await _mediator.Send(new Application.Data.Account.ChangePhoneNumber.Command
+            {
+                UserClaims = User,
+                NewPhoneNumber = Input.PhoneNumber,
+                OldPhoneNumber = phoneNumber
             });
 
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
             {
-                foreach (var error in result.Errors)
+                foreach (string error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error);
                 }
@@ -78,8 +91,7 @@ namespace ShoraWorkManager.Areas.Identity.Pages.Account.Manage
 
             await _signInManager.RefreshSignInAsync(user);
 
-            StatusMessage = "Your password has been changed.";
-
+            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
     }
