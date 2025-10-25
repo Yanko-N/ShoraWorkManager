@@ -1,4 +1,5 @@
 ﻿using Application.Core;
+using Application.Data.AuthorizationTokens;
 using Domain.Exceptions;
 using Domain.Validators;
 using Domain.Validators.Interfaces;
@@ -18,6 +19,7 @@ namespace Application.Data.Account
             public string Email { get; set; }
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
+            public string AuthorizationToken { get; set; }
         }
 
         public class Handler : IRequestHandler<Command, Result<User>>
@@ -27,15 +29,18 @@ namespace Application.Data.Account
             private readonly IUserStore<User> _userStore;
             private readonly IUserEmailStore<User> _emailStore;
             private readonly ILogger<RegisterAccount> _logger;
+            private readonly IMediator _mediator;
 
             public Handler(UserManager<User> userManager, IUserStore<User> userStore,
-                SignInManager<User> signInManager, ILogger<RegisterAccount> logger)
+                SignInManager<User> signInManager, ILogger<RegisterAccount> logger,
+                IMediator mediator)
             {
                 _userManager = userManager;
                 _userStore = userStore;
                 _emailStore = GetEmailStore();
                 _signInManager = signInManager;
                 _logger = logger;
+                _mediator = mediator;
             }
 
             public async Task<Result<User>> Handle(Command request, CancellationToken cancellationToken)
@@ -64,6 +69,23 @@ namespace Application.Data.Account
                         return Result<User>.Failure(ex.ErrorsMessage);
                     }
 
+                    Result<AuthorizationToken> lastToken = await _mediator.Send(new GetLastAuthorizationToken.Query());
+
+                    if(lastToken.IsFailure)
+                    {
+                        return Result<User>.Failure(lastToken.Errors);
+                    }
+
+                    if(string.IsNullOrWhiteSpace(lastToken?.Value?.Token ?? string.Empty))
+                    {
+                        return Result<User>.Failure("No valid authorization token found.");
+                    }
+
+                    if (lastToken?.Value?.Token != request.AuthorizationToken)
+                    {
+                        return Result<User>.Failure("Invalid authorization token.");
+                    }
+
                     var user = CreateUser();
 
                     var username = $"{request.FirstName}-{request.LastName}-{Guid.NewGuid()}";
@@ -79,7 +101,7 @@ namespace Application.Data.Account
 
                     if (result.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(user, AppConstants.Roles.Admin);
+                        await _userManager.AddToRoleAsync(user, AppConstants.Roles.ADMIN);
 
                         _logger.LogInformation("User created a new account with password.");
                         var userId = await _userManager.GetUserIdAsync(user);

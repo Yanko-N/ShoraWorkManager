@@ -1,0 +1,80 @@
+﻿@page
+@model ShoraWorkManager.Areas.Identity.Pages.Account.Manage.CreateAuthorizationTokensModel
+@{
+    ViewData["Title"] = "Authorization Tokens";
+    ViewData["ActivePage"] = ManageNavPages.CreateAuthorizationToken;
+
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0">Authorization Tokens</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Last active token</label>
+            @if (!string.IsNullOrEmpty(Model.PageModel?.LastToken))
+            {
+                <div class="input-group">
+                    <input id="lastToken" class="form-control" value="@Model.PageModel.LastToken" readonly />
+                    <button type="button" class="btn btn-outline-secondary" id="btnCopy">Copy</button>
+                </div>
+                <div class="form-text">
+                    This is the latest <strong>active</strong> token (not used and not expired).
+                </div>
+            }
+            else
+            {
+                <div class="form-text text-muted">
+                    There is currently <strong>no active token</strong>. Generate a new one below.
+                </div>
+            }
+        </div>
+
+        <form method="post" asp-page-handler="Generate" class="d-inline">
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+            <button type="submit" class="btn btn-primary">
+                Generate new token
+            </button>
+        </form>
+
+        <button type="button" class="btn btn-outline-secondary ms-2" data-bs-toggle="collapse" data-bs-target="#help">
+            What happens when I generate?
+        </button>
+
+        <div class="collapse mt-3" id="help">
+            <div class="alert alert-secondary mb-0">
+                - Expired tokens are automatically marked as <em>used</em> before creating a new one. <br />
+                - The new token expires in 1 hour. <br />
+                - The “Last active token” shows only tokens that are not used and not expired.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const btnCopy = document.getElementById('btnCopy');
+            const input = document.getElementById('lastToken');
+
+            if (btnCopy && input) {
+                btnCopy.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(input.value);
+                        btnCopy.innerText = 'Copied!';
+                        setTimeout(() => btnCopy.innerText = 'Copy', 1500);
+                    } catch {
+                        input.select();
+                        document.execCommand('copy');
+                    }
+                });
+            }
+        })();
+    </script>
+}

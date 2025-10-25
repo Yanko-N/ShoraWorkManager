@@ -20,3 +20,31 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.hero-bg {
+    background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(15%);
+}
+
+.overlay {
+    background: rgba(0,0,0,0.35);
+}
+
+.register-card {
+    max-width: 460px;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    overflow: hidden;
+}
+
+.auth-card {
+    max-width: 460px;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    overflow: hidden;
+}
+

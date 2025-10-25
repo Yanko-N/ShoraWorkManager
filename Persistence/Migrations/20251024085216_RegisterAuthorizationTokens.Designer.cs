@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Data;
 
@@ -11,9 +12,11 @@ using Persistence.Data;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024085216_RegisterAuthorizationTokens")]
+    partial class RegisterAuthorizationTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,16 +173,13 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuthorizationTokens", (string)null);
+                    b.ToTable("AuthorizationTokens");
                 });
 
             modelBuilder.Entity("Persistence.Models.Client", b =>
@@ -208,7 +208,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Persistence.Models.ConstructionSite", b =>
@@ -240,7 +240,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ConstructionSites", (string)null);
+                    b.ToTable("ConstructionSites");
                 });
 
             modelBuilder.Entity("Persistence.Models.Material", b =>
@@ -264,7 +264,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Material", (string)null);
+                    b.ToTable("Material");
                 });
 
             modelBuilder.Entity("Persistence.Models.MaterialMovement", b =>
@@ -293,7 +293,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("MaterialId");
 
-                    b.ToTable("MaterialMovements", (string)null);
+                    b.ToTable("MaterialMovements");
                 });
 
             modelBuilder.Entity("Persistence.Models.User", b =>

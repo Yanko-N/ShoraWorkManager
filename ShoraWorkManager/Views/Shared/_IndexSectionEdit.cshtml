@@ -1,0 +1,91 @@
+﻿@model ShoraWorkManager.Models.HomeEditSectionViewModel
+
+<div class="row g-4 mb-5">
+  <div class="col-12 col-lg-5">
+    <form asp-action="@Model.UpdateAction" asp-controller="@Model.Controller" method="post" class="card shadow-sm">
+      @Html.AntiForgeryToken()
+      <div class="card-header">
+        <h2 class="h4 mb-0">@Model.Title</h2>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="ta-@Model.Title" class="form-label">Content (HTML allowed)</label>
+          <textarea id="ta-@Model.Title"
+                    name="@Model.HtmlFieldName"
+                    class="form-control"
+                    rows="12">@Model.HtmlText</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save text</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="h5 mb-0">Add photos</h3>
+      </div>
+      <div class="card-body">
+        <form asp-action="@Model.AddPhotoAction" asp-controller="@Model.Controller" method="post" enctype="multipart/form-data" class="row g-2">
+          @Html.AntiForgeryToken()
+          <div class="col-12 col-md">
+            <input name="@Model.UploadFieldName"
+                   id="file-@Model.Title"
+                   class="form-control"
+                   type="file"
+                   multiple
+                   accept="image/*" />
+          </div>
+          <div class="col-12 col-md-auto">
+            <button type="submit" class="btn btn-primary">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive card shadow-sm">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width:120px">Photo</th>
+            <th>Name</th>
+            <th class="text-end" style="width:160px">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        @if (Model.Photos is null || Model.Photos.Count == 0)
+        {
+          <tr><td colspan="3" class="text-muted">No photos in this section.</td></tr>
+        }
+        else
+        {
+          foreach (var name in Model.Photos)
+          {
+            <tr>
+              <td>
+                <img src="@name"
+                     asp-append-version="true"
+                     width="100" height="75"
+                     class="img-thumbnail"
+                     style="object-fit:cover"
+                     alt="@name" />
+              </td>
+              <td class="text-break">@name</td>
+              <td class="text-end">
+                <form asp-action="@Model.DeletePhotoAction"
+                      asp-controller="@Model.Controller"
+                      method="post"
+                      asp-route-name="@name"
+                      onsubmit="return confirm('Delete?');">
+                  @Html.AntiForgeryToken()
+                  <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                </form>
+              </td>
+            </tr>
+          }
+        }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

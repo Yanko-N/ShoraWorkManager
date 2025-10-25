@@ -9,9 +9,9 @@ namespace Application.Data.Roles
         {
             if (!roleManager.Roles.Any())
             {
-                roleManager.CreateAsync(new IdentityRole(AppConstants.Roles.Admin)).Wait();
+                roleManager.CreateAsync(new IdentityRole(AppConstants.Roles.ADMIN)).Wait();
 
-                roleManager.CreateAsync(new IdentityRole(AppConstants.Roles.User)).Wait();
+                roleManager.CreateAsync(new IdentityRole(AppConstants.Roles.USER)).Wait();
             }
         }
     }

@@ -1,8 +1,292 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ShoraWorkManager.Models.IndexViewModel
+
+@{
+    bool HasText(string? html) 
+    {
+        return !string.IsNullOrWhiteSpace(html); 
+    }
+
+    bool HasPhotos(IList<string>? list) 
+    {
+        return list != null && list.Count > 0;
+    }
+
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container my-5">
+
+    <!-- SECTION 1  -->
+    @{
+        var s1Text = HasText(Model.SectionOneHtmlText);
+        var s1Photos = HasPhotos(Model.SectionOnePhotos);
+    }
+
+    @if (s1Text && s1Photos)
+    {
+        <!-- texto esquerda, imagens direita -->
+        <div class="row align-items-center gy-4 mb-5">
+            <div class="col-12 col-lg-6">
+                <div class="pe-lg-4">
+                    @Html.Raw(Model.SectionOneHtmlText)
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                @* Carousel or single image *@
+                @if (Model.SectionOnePhotos!.Count > 1)
+                {
+                    <div id="carousel-section-1" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.SectionOnePhotos.Count; i++)
+                            {
+                                var src = Model.SectionOnePhotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@src" class="d-block w-100 rounded" alt="Section 1 image @i" style="height:520px;object-fit:cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-section-1" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-section-1" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var src = Model.SectionOnePhotos[0];
+                    <img src="@src" class="img-fluid w-100 rounded" alt="Section 1 image" style="max-height:520px;object-fit:cover;">
+                }
+            </div>
+        </div>
+    }
+    else if (s1Text && !s1Photos)
+    {
+        <!--  text Centrado -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8 text-center">
+                @Html.Raw(Model.SectionOneHtmlText)
+            </div>
+        </div>
+    }
+    else if (!s1Text && s1Photos)
+    {
+        <!--  Imagens Centradas -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8">
+                @if (Model.SectionOnePhotos!.Count > 1)
+                {
+                    <div id="carousel-section-1" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.SectionOnePhotos.Count; i++)
+                            {
+                                var src = Model.SectionOnePhotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@src" class="d-block w-100 rounded" alt="Section 1 image @i" style="height:520px;object-fit:cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-section-1" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-section-1" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var src = Model.SectionOnePhotos[0];
+                    <img src="@src" class="img-fluid w-100 rounded" alt="Section 1 image" style="max-height:520px;object-fit:cover;">
+                }
+            </div>
+        </div>
+    }
+
+    <!--  SECTION 2  -->
+    @{
+        var hasSection2Text = HasText(Model.SectionTwoHtmlText);
+        var hasSection2Photos = HasPhotos(Model.SectionTwoPhotos);
+    }
+
+    @if (hasSection2Text && hasSection2Photos)
+    {
+        <!-- imagens esquerda, texto direita -->
+        <div class="row align-items-center gy-4 mb-5">
+            <div class="col-12 col-lg-6 order-lg-1">
+                @if (Model.SectionTwoPhotos!.Count > 1)
+                {
+                    <div id="carousel-section-2" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.SectionTwoPhotos.Count; i++)
+                            {
+                                var src = Model.SectionTwoPhotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@src" class="d-block w-100 rounded" alt="Section 2 image @i" style="height:520px;object-fit:cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-section-2" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-section-2" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var src = Model.SectionTwoPhotos[0];
+                    <img src="@src" class="img-fluid w-100 rounded" alt="Section 2 image" style="max-height:520px;object-fit:cover;">
+                }
+            </div>
+            <div class="col-12 col-lg-6 order-lg-2">
+                <div class="ps-lg-4">
+                    @Html.Raw(Model.SectionTwoHtmlText)
+                </div>
+            </div>
+        </div>
+    }
+    else if (hasSection2Text && !hasSection2Photos)
+    {
+        <!--  text Centrado -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8 text-center">
+                @Html.Raw(Model.SectionTwoHtmlText)
+            </div>
+        </div>
+    }
+    else if (!hasSection2Text && hasSection2Photos)
+    {
+        <!--  Imagens Centradas -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8">
+                @if (Model.SectionTwoPhotos!.Count > 1)
+                {
+                    <div id="carousel-section-2" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.SectionTwoPhotos.Count; i++)
+                            {
+                                var src = Model.SectionTwoPhotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@src" class="d-block w-100 rounded" alt="Section 2 image @i" style="height:520px;object-fit:cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-section-2" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-section-2" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var src = Model.SectionTwoPhotos[0];
+                    <img src="@src" class="img-fluid w-100 rounded" alt="Section 2 image" style="max-height:520px;object-fit:cover;">
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Secção 3  -->
+    @{
+        var hasSection3Text = HasText(Model.SectionThreeHtmlText);
+        var hasSection3Photos = HasPhotos(Model.SectionThreePhotos);
+    }
+
+    @if (hasSection3Text && hasSection3Photos)
+    {
+        <!-- igual a secção 1 -->
+
+        <div class="row align-items-center gy-4 mb-5">
+            <div class="col-12 col-lg-6">
+                <div class="pe-lg-4">
+                    @Html.Raw(Model.SectionThreeHtmlText)
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                @if (Model.SectionThreePhotos!.Count > 1)
+                {
+                    <div id="carousel-section-3" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.SectionThreePhotos.Count; i++)
+                            {
+                                var src = Model.SectionThreePhotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@src" class="d-block w-100 rounded" alt="Section 3 image @i" style="height:520px;object-fit:cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-section-3" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-section-3" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var src = Model.SectionThreePhotos[0];
+                    <img src="@src" class="img-fluid w-100 rounded" alt="Section 3 image" style="max-height:520px;object-fit:cover;">
+                }
+            </div>
+        </div>
+    }
+    else if (hasSection3Text && !hasSection3Photos)
+    {
+        <!--  text Centrado -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8 text-center">
+                @Html.Raw(Model.SectionThreeHtmlText)
+            </div>
+        </div>
+    }
+    else if (!hasSection3Text && hasSection3Photos)
+    {
+        <!--  Imagens Centradas -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8">
+                @if (Model.SectionThreePhotos!.Count > 1)
+                {
+                    <div id="carousel-section-3" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.SectionThreePhotos.Count; i++)
+                            {
+                                var src = Model.SectionThreePhotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@src" class="d-block w-100 rounded" alt="Section 3 image @i" style="height:520px;object-fit:cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-section-3" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-section-3" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var src = Model.SectionThreePhotos[0];
+                    <img src="@src" class="img-fluid w-100 rounded" alt="Section 3 image" style="max-height:520px;object-fit:cover;">
+                }
+            </div>
+        </div>
+    }
 </div>

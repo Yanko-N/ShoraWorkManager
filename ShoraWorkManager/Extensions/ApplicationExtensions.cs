@@ -20,7 +20,7 @@ namespace ShoraWorkManager.Extensions
                         sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(retryCount, TimeSpan.FromSeconds(retryIntervalSeconds), null))
                 );
 
-            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = false)
+            services.AddIdentity<User,IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 

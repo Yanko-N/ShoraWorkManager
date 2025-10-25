@@ -1,0 +1,120 @@
+﻿@using ShoraWorkManager.Areas.Identity.Pages.Account.Manage
+@model ShoraWorkManager.Models.IndexEditModel
+@{
+    ViewData["Title"] = "Index Page Control";
+    ViewData["ActivePage"] = ManageNavPages.IndexPageControl;
+
+}
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorsMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorsMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
+<div class="container">
+    <ul class="nav nav-tabs" id="indexControlTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="sec1-tab" data-bs-toggle="tab" data-bs-target="#sec1" type="button" role="tab" aria-controls="sec1" aria-selected="true">
+                Top Section
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sec2-tab" data-bs-toggle="tab" data-bs-target="#sec2" type="button" role="tab" aria-controls="sec2" aria-selected="false">
+                Middle Section
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sec3-tab" data-bs-toggle="tab" data-bs-target="#sec3" type="button" role="tab" aria-controls="sec3" aria-selected="false">
+                End Section
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content py-4">
+        <div class="tab-pane fade show active" id="sec1" role="tabpanel" aria-labelledby="sec1-tab">
+            @await Html.PartialAsync("_IndexSectionEdit", new ShoraWorkManager.Models.HomeEditSectionViewModel
+            {
+                Title = "Top Section",
+                HtmlText = Model.SectionOneHtmlText,
+                HtmlFieldName = "HtmlText",
+                UpdateAction = "UpdateSectionOneHtml",
+                AddPhotoAction = "AddPhotoSectionOne",
+                UploadFieldName = "photos",
+                Controller = "Home",
+                Photos = Model.SectionOnePhotos,
+                DeletePhotoAction = "DeletePhotoSectionOne"
+            })
+        </div>
+
+        <div class="tab-pane fade" id="sec2" role="tabpanel" aria-labelledby="sec2-tab">
+            @await Html.PartialAsync("_IndexSectionEdit", new ShoraWorkManager.Models.HomeEditSectionViewModel
+            {
+                Title = "Middle Section",
+                HtmlText = Model.SectionTwoHtmlText,
+                HtmlFieldName = "HtmlText",
+                UpdateAction = "UpdateSectionTwoHtml",
+                AddPhotoAction = "AddPhotoSectionTwo",
+                UploadFieldName = "photos",
+                Controller = "Home",
+                Photos = Model.SectionTwoPhotos,
+                DeletePhotoAction = "DeletePhotoSectionTwo"
+
+            })
+        </div>
+
+        <div class="tab-pane fade" id="sec3" role="tabpanel" aria-labelledby="sec3-tab">
+            @await Html.PartialAsync("_IndexSectionEdit", new ShoraWorkManager.Models.HomeEditSectionViewModel
+            {
+                Title = "End Section",
+                HtmlText = Model.SectionThreeHtmlText,
+                HtmlFieldName = "HtmlText",
+                UpdateAction = "UpdateSectionThreeHtml",
+                AddPhotoAction = "AddPhotoSectionThree",
+                UploadFieldName = "photos",
+                Controller = "Home",
+                Photos = Model.SectionThreePhotos,
+                DeletePhotoAction = "DeletePhotoSectionThree"
+            })
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+          const tabs = document.getElementById('indexControlTabs');
+          if (!tabs) return;
+
+          const key = 'indexControlTabs.active';
+          const last = sessionStorage.getItem(key);
+          if (last) {
+            const trigger = document.querySelector(`[data-bs-target="${last}"]`);
+            if (trigger) new bootstrap.Tab(trigger).show();
+          }
+
+          tabs.addEventListener('shown.bs.tab', function (e) {
+            const target = e.target.getAttribute('data-bs-target');
+            if (target) sessionStorage.setItem(key, target);
+          });
+        })();
+    </script>
+}

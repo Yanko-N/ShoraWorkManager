@@ -38,7 +38,8 @@ namespace ShoraWorkManager.Areas.Identity.Pages.Account
                     LastName = InputViewModel.LastName,
                     Email = InputViewModel.Email,
                     Password = InputViewModel.Password,
-                    ConfirmPassword = InputViewModel.ConfirmPassword
+                    ConfirmPassword = InputViewModel.ConfirmPassword,
+                    AuthorizationToken = InputViewModel.AuthorizationToken
                 });
 
                 if (result.IsSuccess)

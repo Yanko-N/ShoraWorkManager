@@ -44,7 +44,14 @@ namespace Application.Data.Account
                         return Result<SignInResult>.Failure(ex.ErrorsMessage);
                     }
 
-                    var result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, lockoutOnFailure: false);
+                    var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+
+                    if (user == null)
+                    {
+                        return Result<SignInResult>.Failure("Invalid login attempt.");
+                    }
+
+                    var result = await _signInManager.PasswordSignInAsync(user.UserName, request.Password, request.RememberMe, lockoutOnFailure: false);
 
 
                     if(result.Succeeded)
