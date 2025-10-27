@@ -28,7 +28,12 @@
 
         <a class="list-group-item list-group-item-action @ManageNavPages.IndexPageControlNavClass(ViewContext)"
            id="create-token" asp-controller="Home" asp-action="ControlIndex">
-            <span>Index Page Control</span>
+            <span>Landing Page Control</span>
+        </a>
+
+        <a class="list-group-item list-group-item-action @ManageNavPages.AccountControlNavClass(ViewContext)"
+           id="create-token" asp-controller="Account" asp-action="Index">
+            <span>Accounts Role Manager</span>
         </a>
     }
 </div>

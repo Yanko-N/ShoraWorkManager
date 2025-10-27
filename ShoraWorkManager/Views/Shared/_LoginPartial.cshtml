@@ -10,16 +10,12 @@
         bool isSignedIn = SignInManager.IsSignedIn(User);
 
         bool isCurrentUserNull = true;
-
         User? currentUser = null;
-
         if (isSignedIn)
         {
             currentUser = await UserManager.GetUserAsync(User);
-
             isCurrentUserNull = currentUser == null;
         }
-
     }
 
     @if (isSignedIn && !isCurrentUserNull)

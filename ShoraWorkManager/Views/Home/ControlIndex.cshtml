@@ -3,34 +3,44 @@
 @{
     ViewData["Title"] = "Index Page Control";
     ViewData["ActivePage"] = ManageNavPages.IndexPageControl;
-
 }
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-3">
+        <a id="manage"
+           class="btn btn-outline-dark"
+           asp-area="Identity"
+           asp-page="/Account/Manage/Index"
+           title="Back to Manage">
+            Go Back
+        </a>
+        <h1 class="h4 mb-0">Landing Page Control</h1>
+    </div>
+</div>
 
 @if (ViewBag.statusMessages != null)
 {
-    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="statusMessage">
         @foreach (var s in ViewBag.statusMessages)
         {
-            <p>@s</p>
+            <p class="mb-0">@s</p>
         }
-        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')" aria-label="Close"></button>
     </div>
 }
-
 
 @if (ViewBag.errorsMessages != null)
 {
-    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorMessage">
         @foreach (var s in ViewBag.errorsMessages)
         {
-            <p>@s</p>
-
+            <p class="mb-0">@s</p>
         }
-        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')" aria-label="Close"></button>
     </div>
 }
 
-<div class="container">
+<div class="container px-0">
     <ul class="nav nav-tabs" id="indexControlTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="sec1-tab" data-bs-toggle="tab" data-bs-target="#sec1" type="button" role="tab" aria-controls="sec1" aria-selected="true">
@@ -62,12 +72,12 @@
                 Controller = "Home",
                 Photos = Model.SectionOnePhotos,
                 DeletePhotoAction = "DeletePhotoSectionOne"
-            })
+                })
         </div>
 
         <div class="tab-pane fade" id="sec2" role="tabpanel" aria-labelledby="sec2-tab">
             @await Html.PartialAsync("_IndexSectionEdit", new ShoraWorkManager.Models.HomeEditSectionViewModel
-            {
+                        {
                 Title = "Middle Section",
                 HtmlText = Model.SectionTwoHtmlText,
                 HtmlFieldName = "HtmlText",
@@ -77,13 +87,12 @@
                 Controller = "Home",
                 Photos = Model.SectionTwoPhotos,
                 DeletePhotoAction = "DeletePhotoSectionTwo"
-
-            })
+                })
         </div>
 
         <div class="tab-pane fade" id="sec3" role="tabpanel" aria-labelledby="sec3-tab">
             @await Html.PartialAsync("_IndexSectionEdit", new ShoraWorkManager.Models.HomeEditSectionViewModel
-            {
+                        {
                 Title = "End Section",
                 HtmlText = Model.SectionThreeHtmlText,
                 HtmlFieldName = "HtmlText",
@@ -93,7 +102,7 @@
                 Controller = "Home",
                 Photos = Model.SectionThreePhotos,
                 DeletePhotoAction = "DeletePhotoSectionThree"
-            })
+                })
         </div>
     </div>
 </div>
@@ -101,20 +110,20 @@
 @section Scripts {
     <script>
         (function () {
-          const tabs = document.getElementById('indexControlTabs');
-          if (!tabs) return;
+            const tabs = document.getElementById('indexControlTabs');
+            if (!tabs) return;
 
-          const key = 'indexControlTabs.active';
-          const last = sessionStorage.getItem(key);
-          if (last) {
-            const trigger = document.querySelector(`[data-bs-target="${last}"]`);
-            if (trigger) new bootstrap.Tab(trigger).show();
-          }
+            const key = 'indexControlTabs.active';
+            const last = sessionStorage.getItem(key);
+            if (last) {
+                const trigger = document.querySelector(`[data-bs-target="${last}"]`);
+                if (trigger) new bootstrap.Tab(trigger).show();
+            }
 
-          tabs.addEventListener('shown.bs.tab', function (e) {
-            const target = e.target.getAttribute('data-bs-target');
-            if (target) sessionStorage.setItem(key, target);
-          });
+            tabs.addEventListener('shown.bs.tab', function (e) {
+                const target = e.target.getAttribute('data-bs-target');
+                if (target) sessionStorage.setItem(key, target);
+            });
         })();
     </script>
 }

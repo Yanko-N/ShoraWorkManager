@@ -1,0 +1,91 @@
+﻿@model Application.Contracts.Response.PaginatedList<Persistence.Models.Client>
+@using Application.Enums
+
+@{
+    ViewData["Title"] = "Clients";
+
+    var currentSearch = (string)ViewBag.CurrentSearch ?? "";
+    var currentSortBy = (ClientSortBy)(ViewBag.CurrentSortBy ?? ClientSortBy.None);
+    var currentOrderBy = (OrderByEnum)(ViewBag.CurrentOrderBy ?? OrderByEnum.Ascending);
+
+    OrderByEnum Toggle(OrderByEnum o) => o == OrderByEnum.Ascending ? OrderByEnum.Descending : OrderByEnum.Ascending;
+
+    string Query(ClientSortBy sortBy)
+        => $"?Page=1&PageSize={ViewBag.PageSize}&Search={currentSearch}&SortBy={sortBy}&OrderBy={(currentSortBy==sortBy ? Toggle(currentOrderBy) : OrderByEnum.Ascending)}";
+}
+
+<h1>Clients</h1>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input name="Search" value="@currentSearch" class="form-control" placeholder=" Search by name, email, phone number" />
+        <input type="hidden" name="Page" value="1" />
+        <input type="hidden" name="PageSize" value="@ViewBag.PageSize" />
+        <input type="hidden" name="SortBy" value="@currentSortBy" />
+        <input type="hidden" name="OrderBy" value="@currentOrderBy" />
+        <button class="btn btn-primary" type="submit">Pesquisar</button>
+        <a class="btn btn-outline-secondary" href="@Url.Action("Index","Clients")">Clean</a>
+    </div>
+</form>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Add new</a>
+</p>
+
+<table class="table table-hover table-sm align-middle">
+    <thead>
+        <tr>
+            <th><a href="@Query(ClientSortBy.FirstName)">First name</a></th>
+            <th><a href="@Query(ClientSortBy.LastName)">Last name</a></th>
+            <th><a href="@Query(ClientSortBy.Email)">Email</a></th>
+            <th><a href="@Query(ClientSortBy.PhoneNumber)">Phone</a></th>
+            <th style="width:140px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+        <tr>
+            <td>@item.FirstName</td>
+            <td>@item.LastName</td>
+            <td>@item.Email</td>
+            <td>@item.PhoneNumber</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<nav aria-label="pagination">
+    <ul class="pagination">
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link" href="@Url.Action("Index", new {
+                Page = Model.PageIndex - 1,
+                PageSize = ViewBag.PageSize,
+                Search = currentSearch,
+                SortBy = currentSortBy,
+                OrderBy = currentOrderBy
+            })">before</a>
+        </li>
+
+        <li class="page-item disabled">
+            <span class="page-link">
+                Page @Model.PageIndex of @Model.TotalPages — @Model.TotalCount items
+            </span>
+        </li>
+
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+            <a class="page-link" href="@Url.Action("Index", new {
+                Page = Model.PageIndex + 1,
+                PageSize = ViewBag.PageSize,
+                Search = currentSearch,
+                SortBy = currentSortBy,
+                OrderBy = currentOrderBy
+            })">next</a>
+        </li>
+    </ul>
+</nav>

@@ -87,6 +87,7 @@ namespace ShoraWorkManager.Controllers
 
             return RedirectToAction(nameof(ControlIndex));
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = AppConstants.Roles.ADMIN)]
