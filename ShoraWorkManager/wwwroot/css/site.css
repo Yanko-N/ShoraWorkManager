@@ -101,3 +101,16 @@ body {
         background-image: none;
     }
 }
+
+.constructionSite-side-hero {
+    background-image: url('../Documentos/FotosWebSite/ConstructionSite/CreateConstructionSiteHeroImage.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(15%);
+}
+
+@media (max-width: 767.98px) {
+    .constructionSite-side-hero {
+        background-image: none;
+    }
+}

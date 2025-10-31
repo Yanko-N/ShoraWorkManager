@@ -1,65 +1,192 @@
-﻿@model IEnumerable<Persistence.Models.ConstructionSite>
+﻿@model Application.Contracts.Response.PaginatedList<Persistence.Models.ConstructionSite>
+@using Application.Enums
+
+<head>
+    <script src="~/js/indexConstruction.js"></script>
+</head>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Construction Sites";
+
+    var currentSearch = (string)ViewBag.CurrentSearch ?? "";
+    var currentSortBy = (ConstructionSiteSortBy)(ViewBag.CurrentSortBy ?? ConstructionSiteSortBy.None);
+    var currentOrderBy = (OrderByEnum)(ViewBag.CurrentOrderBy ?? OrderByEnum.Ascending);
 }
 
-<h1>Index</h1>
+<div id="root">
+    @if (ViewBag.statusMessages != null)
+    {
+        <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+            @foreach (var s in ViewBag.statusMessages)
+            {
+                <p>@s</p>
+            }
+            <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+        </div>
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Latitude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Longitude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Owner)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Latitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Longitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Owner.Email)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+    @if (ViewBag.errorsMessages != null)
+    {
+        <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+            @foreach (var s in ViewBag.errorsMessages)
+            {
+                <p>@s</p>
+
+            }
+            <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+        </div>
+    }
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <a id="manage"
+               class="btn btn-outline-dark"
+               asp-area="Identity"
+               asp-page="/Account/Manage/TablesManagement"
+               title="Back to Manage">
+                Go Back
+            </a>
+            <h1 class="h4 mb-0">Construction Sites Management</h1>
+        </div>
+    </div>
+
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input name="Search"
+                   id="SearchInputId"
+                   value="@currentSearch"
+                   class="form-control"
+                   placeholder="Search by name, description, owner Name and Email" />
+
+            <input type="hidden" id="PageId" name="Page" value="@ViewBag.CurrentPage" />
+            <input type="hidden" id="PageSizeId" name="PageSize" value="@ViewBag.PageSize" />
+            <input type="hidden" id="SortById" name="SortBy" value="@currentSortBy" />
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary w-100 w-md-auto"
+                        type="submit"
+                        onclick="UpdateConstructionSiteList()">
+                    Search
+                </button>
+                <a class="btn btn-outline-secondary w-100 w-md-auto"
+                   href="@Url.Action("Index", "ConstructionSites")">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                    </svg>
+                    Clear
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+        <div>
+            <a asp-action="Create" class="btn btn-success w-100 w-md-auto">Add new</a>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <label for="orderBySelect" class="form-label mb-0 d-none d-md-inline">Order</label>
+            <select id="orderBySelect"
+                    class="form-select"
+                    aria-label="Sort Order"
+                    onchange="UpdateConstructionSiteList()">
+                @foreach (var order in ViewBag.OrderByList as SelectListItem[])
+                {
+                    var isSelected = currentOrderBy.ToString() == order.Value;
+                    <option value="@order.Value" selected="@(isSelected ? "selected" : null)">
+                        @order.Text
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-responsive-sm">
+        <table class="table table-hover table-sm align-middle mb-3">
+            <thead class="table-light">
+                <tr>
+                    <th class="text-nowrap">
+                        <a id="tableHeader-@ConstructionSiteSortBy.Name"
+                           class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                           onclick="UpdateConstructionSiteListViaSortBy('@ConstructionSiteSortBy.Name')">
+                            Name
+                        </a>
+                    </th>
+                    <th class="text-nowrap">
+                        <a id="tableHeader-@ConstructionSiteSortBy.Description"
+                           class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                           onclick="UpdateConstructionSiteListViaSortBy('@ConstructionSiteSortBy.Description')">
+                            Description
+                        </a>
+                    </th>
+                    <th class="text-nowrap">
+                        <a id="tableHeader-@ConstructionSiteSortBy.OwnerName"
+                           class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                           onclick="UpdateConstructionSiteListViaSortBy('@ConstructionSiteSortBy.OwnerName')">
+                            Owner Name
+                        </a>
+                    </th>
+                    <th class="text-nowrap">
+                        <a id="tableHeader-@ConstructionSiteSortBy.OwnerEmail"
+                           class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                           onclick="UpdateConstructionSiteListViaSortBy('@ConstructionSiteSortBy.OwnerEmail')">
+                            Owner Email
+                        </a>
+                    </th>
+
+                    <th class="text-nowrap">
+                        <label class="btn btn-outline-dark btn-sm w-100 w-md-auto">
+                            Is Active
+                        </label>
+                    </th>
+
+                    <th class="text-nowrap"></th>
+                    <th class="text-nowrap"></th>
+                </tr>
+            </thead>
+            <tbody id="ConstructionSitesListing">
+                <partial name="ConstructionSiteListingPartial" model="@Model.ToList()" />
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <nav aria-label="pagination">
+        <ul class="pagination flex-wrap">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")" id="beforePageButtonId">
+                <a class="page-link" onclick="ChangePage(false,@Model.TotalPages)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                    </svg>
+                </a>
+            </li>
+
+            <li class="page-item disabled">
+                <span class="page-link" id="infoPagesSpanId">
+                    Page @Model.PageIndex of @Model.TotalPages
+                </span>
+            </li>
+
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")" id="nextPageButtonId">
+                <a class="page-link" onclick="ChangePage(true,@Model.TotalPages)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+
+</div>
+
+<style>
+    @@media (max-width: 576px) {
+        .table thead a.btn {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.3rem;
+        }
+    }
+</style>
