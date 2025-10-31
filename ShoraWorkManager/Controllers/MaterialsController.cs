@@ -114,7 +114,7 @@ namespace ShoraWorkManager.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Desciption,AvailableQuantity")] Material material)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,AvailableQuantity")] Material material)
         {
             if (ModelState.IsValid)
             {
@@ -164,7 +164,7 @@ namespace ShoraWorkManager.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPartial(int id, [Bind("Id,Name,Desciption,AvailableQuantity")] Material material)
+        public async Task<IActionResult> EditPartial(int id, [Bind("Id,Name,Description,AvailableQuantity")] Material material)
         {
             if (id != material.Id)
             {
@@ -192,8 +192,15 @@ namespace ShoraWorkManager.Controllers
 
                 TempData["errorsMessages"] = new List<string>();
                 TempData["statusMessages"] = result.IsFailure ? new List<string>() : new List<string>() { $"Sucess editing the material {material.Name}" };
+                var index = RedirectToAction(nameof(Index));
 
-                return RedirectToAction(nameof(Index));
+                var editedResult = new EditedResult
+                {
+                    IsSuccess = true,
+                    ReturnUrl = Url.Action(nameof(Index))!
+                };
+
+                return Json(editedResult);
             }
             return PartialView(material);
         }

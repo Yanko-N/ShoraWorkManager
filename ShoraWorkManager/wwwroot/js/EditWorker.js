@@ -4,14 +4,20 @@
     const formData = new FormData(form);
 
     $.ajax({
-        url: '/Workers/EditPartial',
+        url: '/Workers/EditPartial/' + workerId,
         type: "POST",
         data: formData,
         processData: false, 
         contentType: false, 
         success: function (result)
         {
-            $("#editPartialForm-" + workerId).html(result);
+            if (typeof result === "object" && result.isSuccess) {
+
+                window.location = result.returnUrl;
+
+            } else { //Significa que retornar a partial View
+                $("#editPartial-" + workerId).html(result);
+            }
         },
         error: function (xhr, status, error) {
             console.error('Error: ', status, error);

@@ -192,7 +192,15 @@ namespace ShoraWorkManager.Controllers
                 TempData["errorsMessages"] = new List<string>();
                 TempData["statusMessages"] = result.IsFailure ? new List<string>() : new List<string>() { $"Sucess editing the worker {worker.Name}" };
 
-                return RedirectToAction(nameof(Index));
+                var index = RedirectToAction(nameof(Index));
+
+                var editedResult = new EditedResult
+                {
+                    IsSuccess = true,
+                    ReturnUrl = Url.Action(nameof(Index))!
+                };
+
+                return Json(editedResult);
             }
             return PartialView(worker);
         }
