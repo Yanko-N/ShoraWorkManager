@@ -14,7 +14,7 @@ namespace Domain.Validators
 
         public void Validate(MaterialInput input)
         {
-            IDataValidator<string> nameValidator = new MaterialNameValidator();
+            IDataValidator<string> nameValidator = new NameValidator();
             List<string> errors = new List<string>();
             try
             {

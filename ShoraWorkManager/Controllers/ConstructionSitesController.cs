@@ -1,29 +1,244 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Application.Contracts.Request;
+using Application.Contracts.Response;
+using Application.Data.Clientes;
+using Application.Data.ConstructionSites;
+using Application.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Persistence.Data;
 using Persistence.Models;
 
 namespace ShoraWorkManager.Controllers
 {
     public class ConstructionSitesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IMediator _mediator;
 
-        public ConstructionSitesController(ApplicationDbContext context)
+        public ConstructionSitesController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
-        // GET: ConstructionSites
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] ListingConstructionSiteRequest request)
         {
-            var applicationDbContext = _context.ConstructionSites.Include(c => c.Owner);
-            return View(await applicationDbContext.ToListAsync());
+
+            var result = await _mediator.Send(new GetConstructionSitesListing.Query
+            {
+                Page = request.Page,
+                PageSize = request.PageSize,
+                Search = request.Search,
+                SortBy = request.SortBy,
+                OrderBy = request.OrderBy
+            });
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ToString());
+            }
+
+            // Repassa os parâmetros atuais para a View (para manter os filtros )
+            ViewBag.CurrentSearch = request.Search ?? string.Empty;
+            ViewBag.CurrentSortBy = request.SortBy;
+            ViewBag.CurrentOrderBy = request.OrderBy;
+            ViewBag.PageSize = request.PageSize;
+            ViewBag.CurrentPage = request.Page;
+
+            ViewBag.OrderByList = new SelectListItem[]
+            {
+                new SelectListItem { Value = nameof(OrderByEnum.Ascending), Text = "Ascending" },
+                new SelectListItem { Value = nameof(OrderByEnum.Descending), Text = "Descending" }
+            };
+
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
+            return View(result.Value);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> FilterConstructionSiteList(int page, int pageSize, string search, string sortBy, string orderBy)
+        {
+            ConstructionSiteSortBy sortByResult = ConstructionSiteSortBy.None;
+            try
+            {
+                sortByResult = Enum.Parse<ConstructionSiteSortBy>(sortBy);
+            }
+            catch
+            {
+                sortByResult = ConstructionSiteSortBy.None;
+            }
+            var orderByResult = orderBy == nameof(OrderByEnum.Ascending) ? OrderByEnum.Ascending : OrderByEnum.Descending;
+
+            var result = await _mediator.Send(new GetConstructionSitesListing.Query
+            {
+                Page = page,
+                PageSize = pageSize,
+                Search = search,
+                SortBy = sortByResult,
+                OrderBy = orderByResult
+            });
+
+
+            if (!result.IsSuccess)
+            {
+                return PartialView("ConstructionSitesListingPartial", PaginatedList<ConstructionSite>.Empty());
+            }
+
+            // Repassa os parâmetros atuais para a View (para manter os filtros )
+            ViewBag.CurrentSearch = search ?? string.Empty;
+            ViewBag.CurrentSortBy = sortByResult;
+            ViewBag.CurrentOrderBy = orderByResult;
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentPage = 1;
+
+            ViewBag.OrderByList = new SelectListItem[]
+            {
+                new SelectListItem { Value = nameof(OrderByEnum.Ascending), Text = "Ascending" },
+                new SelectListItem { Value = nameof(OrderByEnum.Descending), Text = "Descending" }
+            };
+
+
+            return PartialView("ConstructionSitesListingPartial", result.Value);
+
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            var resultGetAllClients = await _mediator.Send(new GetAllClients.Query());
+
+            ViewData["ClientId"] = new SelectList(resultGetAllClients.IsSuccess ? resultGetAllClients.Value : new List<Client>(), "Id", "Email");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Latitude,Longitude,IsActive,ClientId")] ConstructionSite constructionSite)
+        {
+            var resultGetAllClients = await _mediator.Send(new GetAllClients.Query());
+
+
+            if (ModelState.IsValid)
+            {
+                var result = await _mediator.Send(new CreateConstructionSite.Command
+                {
+                    Name = constructionSite.Name,
+                    ClientId = constructionSite.ClientId,
+                    Description = constructionSite.Description,
+                    Latitude = constructionSite.Latitude,
+                    Longitude = constructionSite.Longitude,
+                });
+
+                if (!result.IsSuccess)
+                {
+                    foreach (string error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+
+
+                    ViewData["ClientId"] = new SelectList(resultGetAllClients.IsSuccess ? resultGetAllClients.Value : new List<Client>(), "Id", "Email");
+
+                    return View(constructionSite);
+                }
+
+                TempData["errorsMessages"] = new List<string>();
+                TempData["statusMessages"] = result.IsFailure ? new List<string>() : new List<string>() { $"Sucess creating the constructionSite {constructionSite.Name}" };
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["ClientId"] = new SelectList(resultGetAllClients.IsSuccess ? resultGetAllClients.Value : new List<Client>(), "Id", "Email");
+            return View(constructionSite);
+        }
+
+        public async Task<IActionResult> EditPartial(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var contructionGetResult = await _mediator.Send(new GetConstructionSite.Query
+            {
+                Id = (int)id
+            });
+
+            if (!contructionGetResult.IsSuccess)
+            {
+                return NotFound();
+            }
+
+            var resultGetAllClients = await _mediator.Send(new GetAllClients.Query());
+            ViewData["ClientId"] = new SelectList(resultGetAllClients.IsSuccess ? resultGetAllClients.Value : new List<Client>(), "Id", "Email");
+
+
+            return PartialView(contructionGetResult.Value);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPartial(int id, [Bind("Id,Name,Description,Latitude,Longitude,IsActive,ClientId")] ConstructionSite constructionSite)
+        {
+            if (id != constructionSite.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var result = await _mediator.Send(new EditConstructionSite.Command
+                {
+                    Id = constructionSite.Id,
+                    Name = constructionSite.Name,
+                    ClientId = constructionSite.ClientId,
+                    Description = constructionSite.Description,
+                    Latitude = constructionSite.Latitude,
+                    Longitude = constructionSite.Longitude,
+                });
+
+                if (!result.IsSuccess)
+                {
+                    foreach (string error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+                    return PartialView(constructionSite);
+                }
+
+                TempData["errorsMessages"] = new List<string>();
+                TempData["statusMessages"] = result.IsFailure ? new List<string>() : new List<string>() { $"Sucess editing the construction Site {constructionSite.Name}" };
+
+                var index = RedirectToAction(nameof(Index));
+
+                var editedResult = new EditedResult
+                {
+                    IsSuccess = true,
+                    ReturnUrl = Url.Action(nameof(Index))!
+                };
+
+                return Json(editedResult);
+            }
+            return PartialView(constructionSite);
+        }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var resultDelete = await _mediator.Send(new DesactivateConstructionSite.Command
+            {
+                Id = (int)id
+            });
+
+            TempData["errorsMessages"] = resultDelete.IsSuccess ? new List<string>() : resultDelete.Errors.ToList();
+            TempData["statusMessages"] = resultDelete.IsFailure ? new List<string>() : new List<string>() { $"Sucess desactivating the worker {resultDelete.Value}" };
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: ConstructionSites/Details/5
@@ -34,131 +249,16 @@ namespace ShoraWorkManager.Controllers
                 return NotFound();
             }
 
-            var constructionSite = await _context.ConstructionSites
-                .Include(c => c.Owner)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (constructionSite == null)
-            {
-                return NotFound();
-            }
+            //var constructionSite = await _context.ConstructionSites
+            //    .Include(c => c.Owner)
+            //    .FirstOrDefaultAsync(m => m.Id == id);
+            //if (constructionSite == null)
+            //{
+            //    return NotFound();
+            //}
 
-            return View(constructionSite);
-        }
-
-        // GET: ConstructionSites/Create
-        public IActionResult Create()
-        {
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Email");
+            //return View(constructionSite);
             return View();
-        }
-
-        // POST: ConstructionSites/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Latitude,Longitude,IsActive,ClientId")] ConstructionSite constructionSite)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(constructionSite);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Email", constructionSite.ClientId);
-            return View(constructionSite);
-        }
-
-        // GET: ConstructionSites/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var constructionSite = await _context.ConstructionSites.FindAsync(id);
-            if (constructionSite == null)
-            {
-                return NotFound();
-            }
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Email", constructionSite.ClientId);
-            return View(constructionSite);
-        }
-
-        // POST: ConstructionSites/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Latitude,Longitude,IsActive,ClientId")] ConstructionSite constructionSite)
-        {
-            if (id != constructionSite.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(constructionSite);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ConstructionSiteExists(constructionSite.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Email", constructionSite.ClientId);
-            return View(constructionSite);
-        }
-
-        // GET: ConstructionSites/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var constructionSite = await _context.ConstructionSites
-                .Include(c => c.Owner)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (constructionSite == null)
-            {
-                return NotFound();
-            }
-
-            return View(constructionSite);
-        }
-
-        // POST: ConstructionSites/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var constructionSite = await _context.ConstructionSites.FindAsync(id);
-            if (constructionSite != null)
-            {
-                _context.ConstructionSites.Remove(constructionSite);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ConstructionSiteExists(int id)
-        {
-            return _context.ConstructionSites.Any(e => e.Id == id);
         }
     }
 }

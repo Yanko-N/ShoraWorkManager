@@ -3,7 +3,7 @@ using Domain.Validators.Interfaces;
 
 namespace Domain.Validators
 {
-    internal class MaterialNameValidator : IDataValidator<string>
+    internal class NameValidator : IDataValidator<string>
     {
         public void Validate(string input)
         {

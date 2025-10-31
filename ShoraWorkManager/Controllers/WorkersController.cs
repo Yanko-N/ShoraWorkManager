@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Persistence.Data;
 using Persistence.Models;
 
 namespace ShoraWorkManager.Controllers
@@ -15,12 +14,10 @@ namespace ShoraWorkManager.Controllers
     [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class WorkersController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IMediator _mediator;
 
-        public WorkersController(ApplicationDbContext context, IMediator mediator)
+        public WorkersController( IMediator mediator)
         {
-            _context = context;
             _mediator = mediator;
         }
 

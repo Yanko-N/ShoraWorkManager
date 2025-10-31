@@ -7,8 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Persistence.Data;
 using Persistence.Models;
 
 namespace ShoraWorkManager.Controllers
@@ -16,18 +14,15 @@ namespace ShoraWorkManager.Controllers
     [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class MaterialsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IMediator _mediator;
 
-        public MaterialsController(ApplicationDbContext context, IMediator mediator)
+        public MaterialsController(IMediator mediator)
         {
-            _context = context;
             _mediator = mediator;
         }
 
         public async Task<IActionResult> Index([FromQuery] ListingMaterialsRequest request)
         {
-
             var result = await _mediator.Send(new GetMaterialsListing.Query
             {
                 Page = request.Page,
