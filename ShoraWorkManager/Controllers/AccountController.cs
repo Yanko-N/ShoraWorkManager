@@ -16,7 +16,6 @@ namespace ShoraWorkManager.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMediator _mediator;
 
-
         private List<SelectListItem> AvaiableRoles => _roleManager.Roles.Select(r => new SelectListItem { Value = r.Name, Text = r.Name }).ToList();
 
         public AccountController(SignInManager<Persistence.Models.User> signInManager, UserManager<Persistence.Models.User> userManager,

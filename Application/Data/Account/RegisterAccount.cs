@@ -119,6 +119,7 @@ namespace Application.Data.Account
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Error registering new user account.");
                     return Result<User>.Failure("Something wrong occured, try again.");
                 }
             }

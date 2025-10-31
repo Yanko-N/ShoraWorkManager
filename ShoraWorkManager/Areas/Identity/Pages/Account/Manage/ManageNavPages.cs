@@ -20,6 +20,8 @@ namespace  ShoraWorkManager.Areas.Identity.Pages.Account.Manage
         public static string CreateAuthorizationToken => "CreateAuthorizationToken";
         public static string Account => "Manage Accounts";
 
+        public static string TablesManagement => "TablesManagement";
+
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
         public static string EmailNavClass(ViewContext viewContext) => PageNavClass(viewContext, Email);
         public static string IndexPageControlNavClass(ViewContext viewContext) => PageNavClass(viewContext, IndexPageControl);
@@ -27,6 +29,8 @@ namespace  ShoraWorkManager.Areas.Identity.Pages.Account.Manage
 
         public static string ChangePasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangePassword);
         public static string CreateCreateAuthorizationNavClass(ViewContext viewContext) => PageNavClass(viewContext, CreateAuthorizationToken);
+
+        public static string TablesManagementNavClass(ViewContext viewContext) => PageNavClass(viewContext, TablesManagement);
 
         public static string PageNavClass(ViewContext viewContext, string page)
         {

@@ -291,7 +291,7 @@ namespace ShoraWorkManager.Controllers
                     errorsMessages.AddRange(result.Errors);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 errorsMessages.Add("Some error ocurred");
             }
@@ -313,7 +313,7 @@ namespace ShoraWorkManager.Controllers
                     SelectedSection = sections
                 });
             }
-            catch (Exception ex)
+            catch
             {
                 return Result<(List<string> errors, List<string> success)>.Failure("Some error ocurred");
             }

@@ -1,91 +1,184 @@
 ﻿@model Application.Contracts.Response.PaginatedList<Persistence.Models.Client>
 @using Application.Enums
 
+<head>
+    <script src="~/js/indexClients.js"></script>
+</head>
+
 @{
     ViewData["Title"] = "Clients";
 
     var currentSearch = (string)ViewBag.CurrentSearch ?? "";
     var currentSortBy = (ClientSortBy)(ViewBag.CurrentSortBy ?? ClientSortBy.None);
     var currentOrderBy = (OrderByEnum)(ViewBag.CurrentOrderBy ?? OrderByEnum.Ascending);
-
-    OrderByEnum Toggle(OrderByEnum o) => o == OrderByEnum.Ascending ? OrderByEnum.Descending : OrderByEnum.Ascending;
-
-    string Query(ClientSortBy sortBy)
-        => $"?Page=1&PageSize={ViewBag.PageSize}&Search={currentSearch}&SortBy={sortBy}&OrderBy={(currentSortBy==sortBy ? Toggle(currentOrderBy) : OrderByEnum.Ascending)}";
 }
 
-<h1>Clients</h1>
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorsMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorsMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-3">
+        <a id="manage"
+           class="btn btn-outline-dark"
+           asp-area="Identity"
+           asp-page="/Account/Manage/TablesManagement"
+           title="Back to Manage">
+            Go Back
+        </a>
+        <h1 class="h4 mb-0">Clients Entities Management</h1>
+    </div>
+</div>
 
 <form method="get" class="mb-3">
     <div class="input-group">
-        <input name="Search" value="@currentSearch" class="form-control" placeholder=" Search by name, email, phone number" />
-        <input type="hidden" name="Page" value="1" />
-        <input type="hidden" name="PageSize" value="@ViewBag.PageSize" />
-        <input type="hidden" name="SortBy" value="@currentSortBy" />
-        <input type="hidden" name="OrderBy" value="@currentOrderBy" />
-        <button class="btn btn-primary" type="submit">Pesquisar</button>
-        <a class="btn btn-outline-secondary" href="@Url.Action("Index","Clients")">Clean</a>
+        <input name="Search"
+               id="SearchInputId"
+               value="@currentSearch"
+               class="form-control"
+               placeholder="Search by name, email, phone number" />
+
+        <input type="hidden" id="PageId" name="Page" value="@ViewBag.CurrentPage" />
+        <input type="hidden" id="PageSizeId" name="PageSize" value="@ViewBag.PageSize" />
+        <input type="hidden" id="SortById" name="SortBy" value="@currentSortBy" />
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary w-100 w-md-auto"
+                    type="submit"
+                    onclick="UpdateClientList()">
+                Search
+            </button>
+            <a class="btn btn-outline-secondary w-100 w-md-auto"
+               href="@Url.Action("Index", "Clients")">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                </svg>
+                Clear
+            </a>
+        </div>
     </div>
 </form>
 
-<p>
-    <a asp-action="Create" class="btn btn-success">Add new</a>
-</p>
+<div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+    <div>
+        <a asp-action="Create" class="btn btn-success w-100 w-md-auto">Add new</a>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <label for="orderBySelect" class="form-label mb-0 d-none d-md-inline">Order</label>
+        <select id="orderBySelect"
+                class="form-select"
+                aria-label="Sort Order"
+                onchange="UpdateClientList()">
+            @foreach (var order in ViewBag.OrderByList as SelectListItem[])
+            {
+                var isSelected = currentOrderBy.ToString() == order.Value;
+                <option value="@order.Value" selected="@(isSelected ? "selected" : null)">
+                    @order.Text
+                </option>
+            }
+        </select>
+    </div>
+</div>
 
-<table class="table table-hover table-sm align-middle">
-    <thead>
-        <tr>
-            <th><a href="@Query(ClientSortBy.FirstName)">First name</a></th>
-            <th><a href="@Query(ClientSortBy.LastName)">Last name</a></th>
-            <th><a href="@Query(ClientSortBy.Email)">Email</a></th>
-            <th><a href="@Query(ClientSortBy.PhoneNumber)">Phone</a></th>
-            <th style="width:140px;"></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model)
-{
-        <tr>
-            <td>@item.FirstName</td>
-            <td>@item.LastName</td>
-            <td>@item.Email</td>
-            <td>@item.PhoneNumber</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<!-- TABLE -->
+<div class="table-responsive-sm">
+    <table class="table table-hover table-sm align-middle mb-3">
+        <thead class="table-light">
+            <tr>
+                <th class="text-nowrap">
+                    <a id="tableHeader-@ClientSortBy.FirstName"
+                       class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                       onclick="UpdateClientListViaSortBy('@ClientSortBy.FirstName')">
+                        First Name
+                    </a>
+                </th>
+                <th class="text-nowrap">
+                    <a id="tableHeader-@ClientSortBy.LastName"
+                       class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                       onclick="UpdateClientListViaSortBy('@ClientSortBy.LastName')">
+                        Last Name
+                    </a>
+                </th>
+                <th class="text-nowrap">
+                    <a id="tableHeader-@ClientSortBy.Email"
+                       class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                       onclick="UpdateClientListViaSortBy('@ClientSortBy.Email')">
+                        Email
+                    </a>
+                </th>
+                <th class="text-nowrap">
+                    <a id="tableHeader-@ClientSortBy.PhoneNumber"
+                       class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                       onclick="UpdateClientListViaSortBy('@ClientSortBy.PhoneNumber')">
+                        Phone
+                    </a>
+                </th>
+                <th class="text-nowrap"></th>
+                <th class="text-nowrap"></th>
+            </tr>
+        </thead>
+        <tbody id="ClientesListing">
+            <partial name="ClientsListingPartial" model="@Model.ToList()" />
+        </tbody>
+    </table>
+</div>
 
+<!-- PAGINATION -->
 <nav aria-label="pagination">
-    <ul class="pagination">
-        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-            <a class="page-link" href="@Url.Action("Index", new {
-                Page = Model.PageIndex - 1,
-                PageSize = ViewBag.PageSize,
-                Search = currentSearch,
-                SortBy = currentSortBy,
-                OrderBy = currentOrderBy
-            })">before</a>
+    <ul class="pagination flex-wrap">
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")" id="beforePageButtonId">
+            <a class="page-link" onclick="ChangePage(false,@Model.TotalPages)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                </svg>
+            </a>
         </li>
 
         <li class="page-item disabled">
-            <span class="page-link">
-                Page @Model.PageIndex of @Model.TotalPages — @Model.TotalCount items
+            <span class="page-link" id="infoPagesSpanId">
+                Page @Model.PageIndex of @Model.TotalPages
             </span>
         </li>
 
-        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-            <a class="page-link" href="@Url.Action("Index", new {
-                Page = Model.PageIndex + 1,
-                PageSize = ViewBag.PageSize,
-                Search = currentSearch,
-                SortBy = currentSortBy,
-                OrderBy = currentOrderBy
-            })">next</a>
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")" id="nextPageButtonId">
+            <a class="page-link" onclick="ChangePage(true,@Model.TotalPages)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                </svg>
+            </a>
         </li>
     </ul>
 </nav>
+
+<style>
+    @@media (max-width: 576px) {
+        .table thead a.btn
+
+    {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.3rem;
+    }
+
+    }
+</style>

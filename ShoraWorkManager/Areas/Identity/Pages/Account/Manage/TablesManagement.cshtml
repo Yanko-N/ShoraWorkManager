@@ -1,0 +1,42 @@
+﻿@page
+@model ShoraWorkManager.Areas.Identity.Pages.Account.Manage.TablesManagement
+@{
+    ViewData["Title"] = "Tables Management";
+    ViewData["ActivePage"] = ManageNavPages.TablesManagement;
+
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0">Entitys Management</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <a asp-action="Index" asp-controller="Clients"  class="btn btn-outline-primary">
+                Manage Clients
+            </a>
+        </div>
+
+        <div class="mb-3">
+            <a asp-action="Index" asp-controller="Materials" class="btn btn-outline-primary">
+                Manage Materials
+            </a>
+        </div>
+
+        <div class="mb-3">
+            <a asp-action="Index" asp-controller="Workers" class="btn btn-outline-primary">
+                Manage Workers
+            </a>
+        </div>
+
+        <div class="mt-3">
+            <div class="alert alert-secondary mb-0">
+                - Be carefull with editing and deleting the entities in the database, this action is <strong>irreversible</strong>.<br />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

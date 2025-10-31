@@ -11,6 +11,8 @@
         {
             public const string ADMIN = "Admin";
             public const string USER = "User";
+
+            public const string ALL_ROLES = ADMIN + "," + USER;
         }
 
         public static class FilePaths

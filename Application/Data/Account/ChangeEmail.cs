@@ -5,6 +5,7 @@ using Domain.Validators.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Persistence.Data;
 using Persistence.Models;
 using System.Security.Claims;
 
@@ -19,13 +20,15 @@ namespace Application.Data.Account
         }
         public class Handler : IRequestHandler<Command, Result<IdentityResult>>
         {
+            private readonly ApplicationDbContext _context;
             private readonly UserManager<User> _userManager;
             private readonly ILogger<ChangeEmail> _logger;
 
-            public Handler(UserManager<User> userManager, ILogger<ChangeEmail> logger)
+            public Handler(UserManager<User> userManager, ILogger<ChangeEmail> logger, ApplicationDbContext context)
             {
                 _userManager = userManager;
                 _logger = logger;
+                _context = context;
             }
 
             public async Task<Result<IdentityResult>> Handle(Command request, CancellationToken cancellationToken)
@@ -41,6 +44,13 @@ namespace Application.Data.Account
                     catch (CustomValidationException ex)
                     {
                         return Result<IdentityResult>.Failure(ex.ErrorsMessage);
+                    }
+
+                    var isEmailTaken = _context.Users.Any(u => u.Email == request.NewEmail);
+
+                    if(isEmailTaken)
+                    {
+                        return Result<IdentityResult>.Failure("The provided email is already in use by another account.");
                     }
 
                     var user = await _userManager.GetUserAsync(request.UserClaims);

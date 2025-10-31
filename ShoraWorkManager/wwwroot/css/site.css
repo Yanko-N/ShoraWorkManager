@@ -48,3 +48,56 @@ body {
     overflow: hidden;
 }
 
+
+.client-side-hero {
+    background-image: url('../Documentos/FotosWebSite/Clients/CreateClientHeroImage.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(15%);
+}
+
+@media (max-width: 767.98px) {
+    .client-side-hero {
+        background-image: none;
+    }
+}
+
+.material-side-hero {
+    background-image: url('../Documentos/FotosWebSite/Materials/CreateMaterialHeroImage.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(15%);
+}
+
+@media (max-width: 767.98px) {
+    .material-side-hero {
+        background-image: none;
+    }
+}
+
+
+.accountRoles-side-hero {
+    background-image: url('../Documentos/FotosWebSite/Account/EditRolesHeroImage.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(15%);
+}
+
+@media (max-width: 767.98px) {
+    .accountRoles-side-hero {
+        background-image: none;
+    }
+}
+
+.worker-side-hero {
+    background-image: url('../Documentos/FotosWebSite/Workers/CreateWorkerHeroImage.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(15%);
+}
+
+@media (max-width: 767.98px) {
+    .worker-side-hero {
+        background-image: none;
+    }
+}

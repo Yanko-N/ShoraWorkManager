@@ -1,0 +1,35 @@
+﻿@model Persistence.Models.Material
+
+<head>
+    <script src="~/js/EditMaterial.js"></script>
+</head>
+
+<form id="editPartialForm-@Model.Id">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"> Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Description</label>
+        <input asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="AvailableQuantity" class="control-label"> Available Quantity</label>
+        <input asp-for="AvailableQuantity" class="form-control" />
+        <span asp-validation-for="AvailableQuantity" class="text-danger"></span>
+    </div>
+   
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="SubmitEditMaterialForm(@Model.Id)">Save</button>
+
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,18 +1,18 @@
 ﻿using Application.Contracts.Request;
+using Application.Contracts.Response;
+using Application.Core;
 using Application.Data.Clientes;
+using Application.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using Persistence.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ShoraWorkManager.Controllers
 {
+    [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class ClientsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,6 +26,7 @@ namespace ShoraWorkManager.Controllers
 
         public async Task<IActionResult> Index([FromQuery] ListingClientsRequest request)
         {
+           
             var result = await _mediator.Send(new GetClientsListing.Query
             {
                 Page = request.Page,
@@ -45,72 +46,127 @@ namespace ShoraWorkManager.Controllers
             ViewBag.CurrentSortBy = request.SortBy;
             ViewBag.CurrentOrderBy = request.OrderBy;
             ViewBag.PageSize = request.PageSize;
+            ViewBag.CurrentPage = request.Page;
+
+            ViewBag.OrderByList = new SelectListItem[]
+            {
+                new SelectListItem { Value = nameof(OrderByEnum.Ascending), Text = "Ascending" },
+                new SelectListItem { Value = nameof(OrderByEnum.Descending), Text = "Descending" }
+            };
+
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
 
             return View(result.Value);
         }
 
-        // GET: Clients/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [HttpGet]
+        public async Task<IActionResult> FilterClientList(int page,int pageSize,string search,string sortBy,string orderBy)
         {
-            if (id == null)
+            ClientSortBy sortByResult = ClientSortBy.None;
+            try
             {
-                return NotFound();
+                sortByResult = Enum.Parse<ClientSortBy>(sortBy);
+            }
+            catch
+            {
+                sortByResult = ClientSortBy.None;
+            }
+            var orderByResult = orderBy == nameof(OrderByEnum.Ascending) ? OrderByEnum.Ascending : OrderByEnum.Descending;
+
+            var result = await _mediator.Send(new GetClientsListing.Query
+            {
+                Page = page,
+                PageSize = pageSize,
+                Search = search,
+                SortBy = sortByResult,
+                OrderBy = orderByResult
+            });
+
+
+            if (!result.IsSuccess)
+            {
+                return PartialView("ClientsListingPartial",  PaginatedList<Client>.Empty());
             }
 
-            var client = await _context.Clients
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (client == null)
-            {
-                return NotFound();
-            }
+            // Repassa os parâmetros atuais para a View (para manter os filtros )
+            ViewBag.CurrentSearch = search ?? string.Empty;
+            ViewBag.CurrentSortBy = sortByResult;
+            ViewBag.CurrentOrderBy = orderByResult;
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentPage = 1;
 
-            return View(client);
+            ViewBag.OrderByList = new SelectListItem[]
+            {
+                new SelectListItem { Value = nameof(OrderByEnum.Ascending), Text = "Ascending" },
+                new SelectListItem { Value = nameof(OrderByEnum.Descending), Text = "Descending" }
+            };
+
+
+            return PartialView("ClientsListingPartial", result.Value);  
+
         }
 
-        // GET: Clients/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Clients/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Email,PhoneNumber")] Client client)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(client);
-                await _context.SaveChangesAsync();
+                var result = await _mediator.Send(new CreateClient.Command
+                {
+                    FirstName = client.FirstName,
+                    LastName = client.LastName,
+                    Email = client.Email,
+                    Phone = client.PhoneNumber
+                });
+
+                if (!result.IsSuccess)
+                {
+                    foreach (string error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+                    return View(client);
+                }
+
+
+                TempData["errorsMessages"] = new List<string>();
+                TempData["statusMessages"] = result.IsFailure ? new List<string>() : new List<string>() {$"Sucess creating the client {client.FirstName} {client.LastName}" } ;
                 return RedirectToAction(nameof(Index));
             }
             return View(client);
         }
 
-        // GET: Clients/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> EditPartial(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var client = await _context.Clients.FindAsync(id);
-            if (client == null)
+            var clientGetResult = await _mediator.Send(new GetClient.Query 
+            { 
+                Id = (int)id 
+            });
+
+            if (!clientGetResult.IsSuccess)
             {
                 return NotFound();
             }
-            return View(client);
+
+            return PartialView(clientGetResult.Value);
         }
 
-        // POST: Clients/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,Email,PhoneNumber")] Client client)
+        public async Task<IActionResult> EditPartial(int id, [Bind("Id,FirstName,LastName,Email,PhoneNumber")] Client client)
         {
             if (id != client.Id)
             {
@@ -119,28 +175,34 @@ namespace ShoraWorkManager.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var result = await _mediator.Send(new EditClient.Command
                 {
-                    _context.Update(client);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
+                    Id = client.Id,
+                    FirstName = client.FirstName,
+                    LastName = client.LastName,
+                    Email = client.Email,
+                    Phone = client.PhoneNumber
+                });
+
+                if (!result.IsSuccess)
                 {
-                    if (!ClientExists(client.Id))
+                    foreach (string error in result.Errors)
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, error);
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    return PartialView(client);
                 }
+
+                TempData["errorsMessages"] =  new List<string>();
+                TempData["statusMessages"] = result.IsFailure ? new List<string>() : new List<string>() {$"Sucess editing the client {client.FirstName} {client.LastName}" } ;
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(client);
+            return PartialView(client);
         }
-
-        // GET: Clients/Delete/5
+ 
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -148,34 +210,15 @@ namespace ShoraWorkManager.Controllers
                 return NotFound();
             }
 
-            var client = await _context.Clients
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (client == null)
+            var resultDelete = await _mediator.Send(new DeleteClient.Command
             {
-                return NotFound();
-            }
+                Id = (int)id
+            });
 
-            return View(client);
-        }
+            TempData["errorsMessages"] = resultDelete.IsSuccess ? new List<string>() : resultDelete.Errors.ToList();
+            TempData["statusMessages"] = resultDelete.IsFailure ? new List<string>() : new List<string>() {$"Sucess deleting the client {resultDelete.Value}" } ;
 
-        // POST: Clients/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var client = await _context.Clients.FindAsync(id);
-            if (client != null)
-            {
-                _context.Clients.Remove(client);
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ClientExists(int id)
-        {
-            return _context.Clients.Any(e => e.Id == id);
         }
     }
 }

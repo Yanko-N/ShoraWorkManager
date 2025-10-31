@@ -19,7 +19,7 @@ namespace ShoraWorkManager
             var app = builder.Build();
 
             //Seed the Web Application
-            app.SeedWebApplication();
+            app.AddWebApplicationExtras();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -33,12 +33,16 @@ namespace ShoraWorkManager
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.MapRazorPages();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
+      
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapRazorPages();
+
 
             app.Run();
         }

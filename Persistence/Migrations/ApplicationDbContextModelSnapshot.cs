@@ -102,12 +102,10 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -144,12 +142,10 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -179,7 +175,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuthorizationTokens", (string)null);
+                    b.ToTable("AuthorizationTokens");
                 });
 
             modelBuilder.Entity("Persistence.Models.Client", b =>
@@ -208,7 +204,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Persistence.Models.ConstructionSite", b =>
@@ -221,6 +217,10 @@ namespace Persistence.Migrations
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -240,7 +240,39 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ConstructionSites", (string)null);
+                    b.ToTable("ConstructionSites");
+                });
+
+            modelBuilder.Entity("Persistence.Models.ContructionSiteWorkedHoursWorker", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConstructionSiteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("WasPayed")
+                        .HasColumnType("bit");
+
+                    b.Property<float>("WorkedHours")
+                        .HasColumnType("real");
+
+                    b.Property<int>("WorkerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConstructionSiteId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("ContructionSiteWorkedHoursWorkers");
                 });
 
             modelBuilder.Entity("Persistence.Models.Material", b =>
@@ -264,7 +296,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Material", (string)null);
+                    b.ToTable("Material");
                 });
 
             modelBuilder.Entity("Persistence.Models.MaterialMovement", b =>
@@ -293,7 +325,28 @@ namespace Persistence.Migrations
 
                     b.HasIndex("MaterialId");
 
-                    b.ToTable("MaterialMovements", (string)null);
+                    b.ToTable("MaterialMovements");
+                });
+
+            modelBuilder.Entity("Persistence.Models.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContructionSiteWorkedHoursWorkerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PayedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContructionSiteWorkedHoursWorkerId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Persistence.Models.User", b =>
@@ -372,6 +425,27 @@ namespace Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Persistence.Models.Worker", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<float>("PricePerHour")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Workers");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -434,6 +508,25 @@ namespace Persistence.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Persistence.Models.ContructionSiteWorkedHoursWorker", b =>
+                {
+                    b.HasOne("Persistence.Models.ConstructionSite", "ConstructionSite")
+                        .WithMany()
+                        .HasForeignKey("ConstructionSiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Persistence.Models.Worker", "Worker")
+                        .WithMany()
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ConstructionSite");
+
+                    b.Navigation("Worker");
+                });
+
             modelBuilder.Entity("Persistence.Models.MaterialMovement", b =>
                 {
                     b.HasOne("Persistence.Models.ConstructionSite", "ConstructionSite")
@@ -451,6 +544,17 @@ namespace Persistence.Migrations
                     b.Navigation("ConstructionSite");
 
                     b.Navigation("Material");
+                });
+
+            modelBuilder.Entity("Persistence.Models.Payment", b =>
+                {
+                    b.HasOne("Persistence.Models.ContructionSiteWorkedHoursWorker", "ContructionSiteWorkedHoursWorker")
+                        .WithMany()
+                        .HasForeignKey("ContructionSiteWorkedHoursWorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContructionSiteWorkedHoursWorker");
                 });
 #pragma warning restore 612, 618
         }

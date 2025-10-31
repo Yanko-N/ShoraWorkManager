@@ -24,11 +24,22 @@ namespace Application.Contracts.Response
             //Obtemos a contagem total 
             var count = await source.CountAsync(cancellationToken);
 
-            // skip e take para obter os itens da página atual
+            // skip e take 
             var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
 
             // Retornamos a lista
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
+        }
+
+        public static  PaginatedList<T> Empty()
+        {
+            //Obtemos a contagem total 
+            var count = 0;
+
+            var items = new List<T>();
+
+            // Retornamos a lista
+            return new PaginatedList<T>(items, count, 1, 0);
         }
     }
 }

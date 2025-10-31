@@ -2,6 +2,12 @@
 @using Persistence.Models
 @{
     var isAdmin = User.IsInRole(AppConstants.Roles.ADMIN);
+    var isUser = User.IsInRole(AppConstants.Roles.USER);
+
+    if(!isUser && isAdmin)
+    {
+        isUser = true;
+    }
 }
 <div class="list-group list-group-flush rounded-3 shadow-sm">
     <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @ManageNavPages.IndexNavClass(ViewContext)"
@@ -18,6 +24,14 @@
        id="change-password" asp-page="./ChangePassword">
         <span>My Password</span>
     </a>
+
+    @if(isUser)
+    {
+        <a class="list-group-item list-group-item-action  @ManageNavPages.TablesManagementNavClass(ViewContext)"
+           id="create-token" asp-page="./TablesManagement">
+            <span>Entities Managament</span>
+        </a>
+    }
 
     @if (isAdmin)
     {

@@ -20,7 +20,9 @@ namespace ShoraWorkManager.Extensions
                         sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(retryCount, TimeSpan.FromSeconds(retryIntervalSeconds), null))
                 );
 
-            services.AddIdentity<User,IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+            services.AddIdentity<User,IdentityRole>(options => {
+                options.SignIn.RequireConfirmedAccount = false;
+                })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -30,10 +32,25 @@ namespace ShoraWorkManager.Extensions
 
             services.AddMemoryCache();
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Account/Logout";
+            });
+
             return services;
         }
 
-        public static WebApplication SeedWebApplication(this WebApplication application)
+        
+
+        public static WebApplication AddWebApplicationExtras(this WebApplication application)
+        {
+            SeedRolesExtension(application);
+
+            return application;
+        }
+
+        private static WebApplication SeedRolesExtension(this WebApplication application)
         {
             using (var scope = application.Services.CreateScope())
             {

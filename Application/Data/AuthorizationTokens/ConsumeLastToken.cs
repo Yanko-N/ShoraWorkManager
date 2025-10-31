@@ -34,11 +34,13 @@ namespace Application.Data.AuthorizationTokens
 
                     if(token == null)
                     {
+                        _logger.LogWarning("The provided token was not found.");
                         return Result<Persistence.Models.AuthorizationToken>.Failure("The provided token was not found.");
                     }
 
                     if (token.IsUsed)
                     {
+                        _logger.LogWarning("The provided token has already been used.");
                         return Result<Persistence.Models.AuthorizationToken>.Failure("The provided token has already been used.");
                     }
 
@@ -50,6 +52,7 @@ namespace Application.Data.AuthorizationTokens
 
                     if (!sucessfulSave)
                     {
+                        _logger.LogWarning("Failed to update expired tokens.");
                         return Result<Persistence.Models.AuthorizationToken>.Failure("Failed to update expired tokens.");
                     }
 

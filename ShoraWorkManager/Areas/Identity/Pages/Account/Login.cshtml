@@ -52,23 +52,4 @@
 @section Scripts 
 {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function () {
-            const btn = document.getElementById('togglePassword');
-            const pwd = document.getElementById('passwordField');
-
-            if (btn && pwd) {
-                btn.addEventListener('click', () => {
-                    const isPwd = pwd.getAttribute('type') === 'password';
-                    pwd.setAttribute('type', isPwd ? 'text' : 'password');
-                    btn.setAttribute('aria-label', isPwd ? 'Hide password' : 'Show password');
-                    const icon = btn.querySelector('i');
-                    if (icon) {
-                        icon.classList.toggle('bi-eye');
-                        icon.classList.toggle('bi-eye-slash');
-                    }
-                });
-            }
-        })();
-    </script>
 }

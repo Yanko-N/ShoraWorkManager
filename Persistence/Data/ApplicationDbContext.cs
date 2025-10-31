@@ -16,5 +16,8 @@ namespace Persistence.Data
         public DbSet<Material> Material { get; set; } = default!;
         public DbSet<MaterialMovement> MaterialMovements { get; set; } = default!;
         public DbSet<AuthorizationToken> AuthorizationTokens { get; set; } = default!;
+        public DbSet<Worker> Workers { get; set; } = default!;
+        public DbSet<Payment> Payments { get; set; } = default!;
+        public DbSet<ContructionSiteWorkedHoursWorker> ContructionSiteWorkedHoursWorkers { get; set; } = default!;
     }
 }

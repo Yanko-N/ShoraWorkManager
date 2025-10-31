@@ -12,7 +12,24 @@
     }
 
     bool isAdmin = User.IsInRole(AppConstants.Roles.ADMIN);
-    string message = !isAdmin ? "Maintain your account" : "Maintain your account and regulate the enterprise settings";
+    bool isUser = User.IsInRole(AppConstants.Roles.USER);
+
+    if (!isUser && isAdmin)
+    {
+        isUser = true;
+    }
+
+    string message = "Maintain your account";
+
+    if (isUser)
+    {
+        message += " & Enterprise Entities";
+    }
+
+    if (isAdmin)
+    {
+        message += " and finally the enterprise settings";
+    }
 }
 
 <div class="container py-4">

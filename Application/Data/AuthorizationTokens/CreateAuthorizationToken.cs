@@ -41,6 +41,7 @@ namespace Application.Data.AuthorizationTokens
 
                     if (!sucessfulSave)
                     {
+                        _logger.LogWarning("Failed to update expired tokens.");
                         return Result<Persistence.Models.AuthorizationToken>.Failure("Failed to update expired tokens.");
                     }
 

@@ -3,7 +3,6 @@ using Application.Core;
 using Application.Enums;
 using Application.Interfaces.Search;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence.Data;
 using Persistence.Models;
@@ -76,6 +75,7 @@ namespace Application.Data.Clientes
                     // Apply pagination
                     var page = await PaginatedList<Client>.CreateAsync(query, request.Page, request.PageSize, cancellationToken);
 
+                    _logger.LogInformation("Clients listing retrieved successfully.");
                     return Result<PaginatedList<Client>>.Success(page);
                 }
                 catch (Exception ex)
