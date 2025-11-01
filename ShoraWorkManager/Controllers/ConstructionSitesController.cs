@@ -118,7 +118,7 @@ namespace ShoraWorkManager.Controllers
             var resultGetAllClients = await _mediator.Send(new GetAllClients.Query());
 
 
-            if (ModelState.IsValid)
+           if (ModelState.IsValid)
             {
                 var result = await _mediator.Send(new CreateConstructionSite.Command
                 {
@@ -183,6 +183,7 @@ namespace ShoraWorkManager.Controllers
             {
                 return NotFound();
             }
+            var resultGetAllClients = await _mediator.Send(new GetAllClients.Query());
 
             if (ModelState.IsValid)
             {
@@ -202,6 +203,8 @@ namespace ShoraWorkManager.Controllers
                     {
                         ModelState.AddModelError(string.Empty, error);
                     }
+                    ViewData["ClientId"] = new SelectList(resultGetAllClients.IsSuccess ? resultGetAllClients.Value : new List<Client>(), "Id", "Email");
+
                     return PartialView(constructionSite);
                 }
 
@@ -218,6 +221,8 @@ namespace ShoraWorkManager.Controllers
 
                 return Json(editedResult);
             }
+
+            ViewData["ClientId"] = new SelectList(resultGetAllClients.IsSuccess ? resultGetAllClients.Value : new List<Client>(), "Id", "Email");
             return PartialView(constructionSite);
         }
 
@@ -230,18 +235,18 @@ namespace ShoraWorkManager.Controllers
                 return NotFound();
             }
 
-            var resultDelete = await _mediator.Send(new DesactivateConstructionSite.Command
+            var resultDelete = await _mediator.Send(new ChangeStateConstructionSite.Command
             {
-                Id = (int)id
+                Id = (int)id,
+                JustFlipState = true
             });
 
             TempData["errorsMessages"] = resultDelete.IsSuccess ? new List<string>() : resultDelete.Errors.ToList();
-            TempData["statusMessages"] = resultDelete.IsFailure ? new List<string>() : new List<string>() { $"Sucess desactivating the worker {resultDelete.Value}" };
+            TempData["statusMessages"] = resultDelete.IsFailure ? new List<string>() : new List<string>() { $"{resultDelete.Value}" };
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: ConstructionSites/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -249,16 +254,17 @@ namespace ShoraWorkManager.Controllers
                 return NotFound();
             }
 
-            //var constructionSite = await _context.ConstructionSites
-            //    .Include(c => c.Owner)
-            //    .FirstOrDefaultAsync(m => m.Id == id);
-            //if (constructionSite == null)
-            //{
-            //    return NotFound();
-            //}
+            var constructionSiteResult = await _mediator.Send(new GetConstructionSite.Query()
+            {
+                Id = (int)id
+            });
 
-            //return View(constructionSite);
-            return View();
+            if (!constructionSiteResult.IsSuccess)
+            {
+                return NotFound(constructionSiteResult.ToString());
+            }
+
+            return View(constructionSiteResult.Value);
         }
     }
 }

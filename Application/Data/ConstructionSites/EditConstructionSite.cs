@@ -43,7 +43,10 @@ namespace Application.Data.ConstructionSites
                         constructionSiteValidator.Validate(new ConstructionSiteValidator.ConstructionSiteInput
                         {
                             Name = request.Name,
-
+                            Description = request.Description,
+                            Latitude = request.Latitude,
+                            Longitude = request.Longitude,
+                            ClientId = request.ClientId
                         });
                     }
                     catch (CustomValidationException ex)
@@ -64,7 +67,7 @@ namespace Application.Data.ConstructionSites
 
                     if (request.Latitude != null && request.Longitude != null)
                     {
-                        var constructionSiteCoordsExists = _context.ConstructionSites.FirstOrDefaultAsync(c => c.Latitude == request.Latitude &&
+                        var constructionSiteCoordsExists = await _context.ConstructionSites.FirstOrDefaultAsync(c => c.Latitude == request.Latitude &&
                         c.Longitude == request.Longitude,cancellationToken);
 
                         if (constructionSiteCoordsExists != null && constructionSiteCoordsExists.Id != request.Id)

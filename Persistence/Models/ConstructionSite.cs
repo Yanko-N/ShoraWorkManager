@@ -21,8 +21,9 @@ namespace Persistence.Models
         [Required(ErrorMessage ="It's needed a state for the construction site")]
         public bool IsActive { get; set; } = true;
 
+        [Required(ErrorMessage ="It's necessary choosing a owner")]
         [ForeignKey(nameof(Owner))]
         public int ClientId { get; set; }
-        public virtual Client Owner { get; set; }
+        public virtual Client? Owner { get; set; }
     }
 }

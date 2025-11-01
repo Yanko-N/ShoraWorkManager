@@ -40,7 +40,10 @@ namespace Application.Data.ConstructionSites
                         constructionSiteValidator.Validate(new ConstructionSiteValidator.ConstructionSiteInput
                         {
                             Name = request.Name,
-                            
+                            Description = request.Description,
+                            Latitude = request.Latitude,
+                            Longitude = request.Longitude,
+                            ClientId = request.ClientId
                         });
                     }
                     catch (CustomValidationException ex)

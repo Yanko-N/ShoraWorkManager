@@ -5,18 +5,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Data.ConstructionSites
 {
-    public class DesactivateConstructionSite
+    public class ChangeStateConstructionSite
     {
         public class Command : IRequest<Result<string>>
         {
             public int Id { get; set; }
+
+            public bool JustFlipState { get; set; } = false;
+
+            public bool NewState {  get; set; }
         }
 
         public class Handler : IRequestHandler<Command, Result<string>>
         {
             private readonly Persistence.Data.ApplicationDbContext _context;
-            private readonly ILogger<DesactivateConstructionSite> _logger;
-            public Handler(Persistence.Data.ApplicationDbContext context, ILogger<DesactivateConstructionSite> logger)
+            private readonly ILogger<ChangeStateConstructionSite> _logger;
+            public Handler(Persistence.Data.ApplicationDbContext context, ILogger<ChangeStateConstructionSite> logger)
             {
                 _context = context;
                 _logger = logger;
@@ -34,14 +38,16 @@ namespace Application.Data.ConstructionSites
                     }
 
                     var name = constructionSite.Name;
-                    constructionSite.IsActive = false;
+
+                    constructionSite.IsActive = request.JustFlipState ? !constructionSite.IsActive : request.NewState;
 
                     _context.ConstructionSites.Update(constructionSite);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
+                    var message = request.JustFlipState ? $"State was alternated with success of the construction site {name}" : $"State of Construction site {name} was successfully changed to {request.NewState}";
 
-                    return result ? Result<string>.Success(name) : Result<string>.Failure("No changes on the context DB");
+                    return result ? Result<string>.Success(message) : Result<string>.Failure("No changes on the context DB");
                 }
                 catch (Exception ex)
                 {
