@@ -1,170 +1,175 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Application.Data.ConstructionSites;
+using Application.Data.MaterialMoviments;
+using Application.Data.Materials;
+using Application.Data.WorkedHours;
+using Application.Data.Workers;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using Persistence.Models;
+using ShoraWorkManager.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShoraWorkManager.Controllers
 {
     public class HoursWorkersController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public HoursWorkersController(ApplicationDbContext context)
+        private readonly IMediator _mediator;
+        public HoursWorkersController(IMediator mediator, ApplicationDbContext context)
         {
+            _mediator = mediator;
             _context = context;
         }
 
-        // GET: HoursWorkers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> GetTheWorkedHoursIndex(int? id)
         {
-            var applicationDbContext = _context.ContructionSiteWorkedHoursWorkers.Include(c => c.ConstructionSite).Include(c => c.Worker);
-            return View(await applicationDbContext.ToListAsync());
-        }
 
-        // GET: HoursWorkers/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
             if (id == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var contructionSiteWorkedHoursWorker = await _context.ContructionSiteWorkedHoursWorkers
-                .Include(c => c.ConstructionSite)
-                .Include(c => c.Worker)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (contructionSiteWorkedHoursWorker == null)
+            var resultConstructionSite = await _mediator.Send(new GetConstructionSite.Query()
             {
-                return NotFound();
+                Id = (int)id
+            });
+
+            if (!resultConstructionSite.IsSuccess)
+            {
+
+                return BadRequest(resultConstructionSite.ToString());
             }
 
-            return View(contructionSiteWorkedHoursWorker);
+            var hoursWorked = await _mediator.Send(new GetWorkedHoursFromConstructionSite.Query()
+            {
+                ConstructionId = (int)id
+            });
+
+            if (!hoursWorked.IsSuccess)
+            {
+                return BadRequest(hoursWorked.ToString());
+            }
+
+            var viewModel = new ConstructionSiteDetailsViewModel()
+            {
+                ConstructionSite = resultConstructionSite.Value,
+                WorkedHours = hoursWorked.Value
+            };
+
+            return PartialView("ListPartial", viewModel);
         }
 
-        // GET: HoursWorkers/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? id)
         {
-            ViewData["ConstructionSiteId"] = new SelectList(_context.ConstructionSites, "Id", "Description");
-            ViewData["WorkerId"] = new SelectList(_context.Workers, "Id", "Name");
-            return View();
+
+            if (id == null)
+            {
+                return BadRequest();
+            }
+
+            var resultConstructionSite = await _mediator.Send(new GetConstructionSite.Query()
+            {
+                Id = (int)id
+            });
+
+            var resultWorkers = await _mediator.Send(new GetAllWorkers.Query());
+
+            if (!resultConstructionSite.IsSuccess)
+            {
+                return BadRequest(resultConstructionSite.ToString());
+            }
+
+            if (!resultWorkers.IsSuccess)
+            {
+                return BadRequest(resultWorkers.ToString());
+            }
+
+            ViewData["ConstructionSiteId"] = resultConstructionSite.Value.Id;
+            ViewData["WorkerId"] = new SelectList(resultWorkers.Value, "Id", "Name");
+            return PartialView();
         }
 
-        // POST: HoursWorkers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ConstructionSiteId,WorkerId,WorkedHours,RegisteredAt,WasPayed")] ContructionSiteWorkedHoursWorker contructionSiteWorkedHoursWorker)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(contructionSiteWorkedHoursWorker);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ConstructionSiteId"] = new SelectList(_context.ConstructionSites, "Id", "Description", contructionSiteWorkedHoursWorker.ConstructionSiteId);
-            ViewData["WorkerId"] = new SelectList(_context.Workers, "Id", "Name", contructionSiteWorkedHoursWorker.WorkerId);
-            return View(contructionSiteWorkedHoursWorker);
-        }
-
-        // GET: HoursWorkers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Create(int? id, [Bind("Id,ConstructionSiteId,WorkerId,WorkedHours,RegisteredAt,WasPayed")] ContructionSiteWorkedHoursWorker contructionSiteWorkedHoursWorker)
         {
             if (id == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var contructionSiteWorkedHoursWorker = await _context.ContructionSiteWorkedHoursWorkers.FindAsync(id);
-            if (contructionSiteWorkedHoursWorker == null)
+            if (id != contructionSiteWorkedHoursWorker.ConstructionSiteId)
             {
-                return NotFound();
+                return BadRequest();
             }
-            ViewData["ConstructionSiteId"] = new SelectList(_context.ConstructionSites, "Id", "Description", contructionSiteWorkedHoursWorker.ConstructionSiteId);
-            ViewData["WorkerId"] = new SelectList(_context.Workers, "Id", "Name", contructionSiteWorkedHoursWorker.WorkerId);
-            return View(contructionSiteWorkedHoursWorker);
-        }
 
-        // POST: HoursWorkers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ConstructionSiteId,WorkerId,WorkedHours,RegisteredAt,WasPayed")] ContructionSiteWorkedHoursWorker contructionSiteWorkedHoursWorker)
-        {
-            if (id != contructionSiteWorkedHoursWorker.Id)
+            var resultConstructionSite = await _mediator.Send(new GetConstructionSite.Query()
             {
-                return NotFound();
+                Id = contructionSiteWorkedHoursWorker.ConstructionSiteId
+            });
+
+            var resultWorkers = await _mediator.Send(new GetAllWorkers.Query());
+
+            if (!resultConstructionSite.IsSuccess)
+            {
+                return BadRequest(resultConstructionSite.ToString());
+            }
+
+            if (!resultWorkers.IsSuccess)
+            {
+                return BadRequest(resultWorkers.ToString());
             }
 
             if (ModelState.IsValid)
             {
-                try
+                var resultCreateHoursWorker = await _mediator.Send(new CreateWorkedHours.Command()
                 {
-                    _context.Update(contructionSiteWorkedHoursWorker);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
+                    ConstructionSiteId = resultConstructionSite.Value.Id,
+                    WorkedHours = contructionSiteWorkedHoursWorker.WorkedHours,
+                    WorkerId = contructionSiteWorkedHoursWorker.WorkerId
+                });
+
+                if (!resultCreateHoursWorker.IsSuccess)
                 {
-                    if (!ContructionSiteWorkedHoursWorkerExists(contructionSiteWorkedHoursWorker.Id))
+                    foreach (var error in resultCreateHoursWorker.Errors)
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, error);
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    ViewData["ConstructionSiteId"] = resultConstructionSite.Value.Id;
+                    ViewData["WorkerId"] = new SelectList(resultWorkers.Value, "Id", "Name", contructionSiteWorkedHoursWorker.WorkerId);
+                    return PartialView(contructionSiteWorkedHoursWorker);
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ConstructionSiteId"] = new SelectList(_context.ConstructionSites, "Id", "Description", contructionSiteWorkedHoursWorker.ConstructionSiteId);
-            ViewData["WorkerId"] = new SelectList(_context.Workers, "Id", "Name", contructionSiteWorkedHoursWorker.WorkerId);
-            return View(contructionSiteWorkedHoursWorker);
-        }
 
-        // GET: HoursWorkers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+                var workedHoursResult = await _mediator.Send(new GetWorkedHoursFromConstructionSite.Query()
+                {
+                    ConstructionId = (int)id
+                });
 
-            var contructionSiteWorkedHoursWorker = await _context.ContructionSiteWorkedHoursWorkers
-                .Include(c => c.ConstructionSite)
-                .Include(c => c.Worker)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (contructionSiteWorkedHoursWorker == null)
-            {
-                return NotFound();
+                if (!workedHoursResult.IsSuccess)
+                {
+                    return BadRequest(workedHoursResult.ToString());
+                }
+
+                var viewModel = new ConstructionSiteDetailsViewModel()
+                {
+                    ConstructionSite = resultConstructionSite.Value,
+                    WorkedHours = workedHoursResult.Value
+                };
+
+                return PartialView("ListPartial", viewModel);
             }
 
-            return View(contructionSiteWorkedHoursWorker);
+            ViewData["ConstructionSiteId"] = resultConstructionSite.Value.Id;
+            ViewData["WorkerId"] = new SelectList(resultWorkers.Value, "Id", "Name", contructionSiteWorkedHoursWorker.WorkerId);
+            return PartialView(contructionSiteWorkedHoursWorker);
         }
-
-        // POST: HoursWorkers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var contructionSiteWorkedHoursWorker = await _context.ContructionSiteWorkedHoursWorkers.FindAsync(id);
-            if (contructionSiteWorkedHoursWorker != null)
-            {
-                _context.ContructionSiteWorkedHoursWorkers.Remove(contructionSiteWorkedHoursWorker);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ContructionSiteWorkedHoursWorkerExists(int id)
-        {
-            return _context.ContructionSiteWorkedHoursWorkers.Any(e => e.Id == id);
-        }
+       
     }
 }

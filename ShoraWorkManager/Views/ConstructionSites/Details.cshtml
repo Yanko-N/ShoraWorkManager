@@ -6,6 +6,7 @@
 
 <head>
     <script src="~/js/DetailsContructionMaterial.js"></script>
+    <script src="~/js/DetailsContructionHoursWorked.js"></script>
 </head>
 
 <div class="row">
@@ -105,24 +106,7 @@
 
     <!-- Mão de Obra -->
     <div class="tab-pane fade" id="workforce" role="tabpanel" aria-labelledby="workforce-tab">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Registo de Mão de Obra</h5>
-                <p class="text-muted mb-3">
-                    Escrever o nome da pessoa • Introduzir o número de horas trabalhadas • Guardar data/hora do registo
-                </p>
-
-
-                <div class="alert alert-secondary mb-0">
-                    <strong>Placeholder:</strong> aqui vai o formulário para:
-                    <ul class="mb-0">
-                        <li>Nome do trabalhador</li>
-                        <li>Número de horas</li>
-                        <li>Data/hora do registo</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+       <partial name="WorkedHoursPartial" model="@Model"/>
     </div>
 
     <!--  Pagamentos -->

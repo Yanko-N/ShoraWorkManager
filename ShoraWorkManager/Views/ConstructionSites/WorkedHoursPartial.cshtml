@@ -1,0 +1,13 @@
+﻿@model ConstructionSiteDetailsViewModel
+
+<div class="card" id="completeWorkedHoursPartial">
+    <div class="card-body" style="background-color:white">
+        <h5 class="card-title mb-3">Work Force Registry</h5>
+        <p class="text-muted mb-3">
+            Workers Hours
+        </p>
+        <div class="alert alert-secondary mb-0" id="workedHoursForm">
+            <partial name="../HoursWorkers/ListPartial" model="@Model" />
+        </div>
+    </div>
+</div>
