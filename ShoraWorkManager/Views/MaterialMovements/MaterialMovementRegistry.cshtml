@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Persistence.Models.MaterialMovement>
+
+@{
+    ViewData["Title"] = "Material Movement";
+}
+
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-3">
+        <a class="btn btn-outline-dark"
+           asp-controller="ConstructionSites"
+           asp-action="Details"
+           asp-route-id="@ViewBag.ConstructionSiteId"
+           title="Back to Manage">
+            Go Back
+        </a>
+        <h1>Material Movement Registry for the Construction Site @ViewBag.ConstructionSiteName </h1>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Material)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                Movement Date
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Material.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovementDate)
+            </td>
+           
+        </tr>
+}
+    </tbody>
+</table>

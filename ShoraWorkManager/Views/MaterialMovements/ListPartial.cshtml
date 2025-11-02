@@ -1,0 +1,31 @@
+﻿@using Application.Contracts.Response
+@model ConstructionSiteDetailsViewModel
+
+<button class="btn btn-outline-primary" onclick="GetAddNewMaterial(@Model.ConstructionSite.Id)"> Add New </button>
+<a asp-action="MaterialMovementRegistry" asp-controller="MaterialMovements"
+   asp-route-id="@Model.ConstructionSite.Id" class="btn btn-outline-danger" > 
+Open Registry
+</a>
+
+<div class="alert alert-secondary mb-0">
+
+    @if(Model.MaterialMovements.Count != 0)
+    {
+        <dl class="mb-0">
+            @foreach (var item in Model.MaterialMovements)
+            {
+                <dt>
+                    @item.MaterialName
+                </dt>
+                <dd>
+                    @item.Quantity
+                </dd>
+            }
+        </dl>
+    }
+    else
+    {
+        <span> Empty </span>
+    }
+
+</div>

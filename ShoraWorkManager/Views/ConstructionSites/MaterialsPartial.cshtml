@@ -1,0 +1,13 @@
+﻿@model ConstructionSiteDetailsViewModel
+
+<div class="card" id="completeMaterialsPartial">
+    <div class="card-body" style="background-color:white">
+        <h5 class="card-title mb-3">Material Registry</h5>
+        <p class="text-muted mb-3">
+            Materials Used
+        </p>
+        <div class="alert alert-secondary mb-0" id="materialForm">
+            <partial name="../MaterialMovements/ListPartial" model="@Model" />
+        </div>
+    </div>
+</div>

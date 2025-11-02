@@ -2,12 +2,14 @@
 using Application.Contracts.Response;
 using Application.Data.Clientes;
 using Application.Data.ConstructionSites;
+using Application.Data.MaterialMoviments;
 using Application.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Models;
+using ShoraWorkManager.Models;
 
 namespace ShoraWorkManager.Controllers
 {
@@ -264,7 +266,43 @@ namespace ShoraWorkManager.Controllers
                 return NotFound(constructionSiteResult.ToString());
             }
 
-            return View(constructionSiteResult.Value);
+            var materialsMoviments = await _mediator.Send(new GetMaterialFromConstructionSite.Query()
+            {
+                ConstructionSiteId = (int)id
+            });
+
+            if (!materialsMoviments.IsSuccess)
+            {
+                return BadRequest(materialsMoviments.ToString());
+            }
+
+            var viewModel = new ConstructionSiteDetailsViewModel()
+            {
+                ConstructionSite = constructionSiteResult.Value,
+                MaterialMovements = materialsMoviments.Value
+            };
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> MaterialsPartial(int? id)
+        {
+            if (id == null)
+            {
+                return BadRequest();
+            }
+
+            var constructionSite = await _mediator.Send(new GetConstructionSite.Query()
+            {
+                Id = (int)id
+            });
+
+            if (!constructionSite.IsSuccess)
+            {
+                return BadRequest();
+            }
+
+            return PartialView(constructionSite.Value);
         }
     }
 }

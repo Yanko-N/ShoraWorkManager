@@ -27,6 +27,7 @@ namespace Application.Data.ConstructionSites
                 try
                 {
                     var constructionSite = await _context.ConstructionSites
+                        .Include(c=>c.Owner)
                         .AsNoTracking()
                         .FirstOrDefaultAsync(c => c.Id == request.Id,cancellationToken);
 

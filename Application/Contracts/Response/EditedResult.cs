@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Html;
-
-namespace Application.Contracts.Response
+﻿namespace Application.Contracts.Response
 {
     public class EditedResult
     {

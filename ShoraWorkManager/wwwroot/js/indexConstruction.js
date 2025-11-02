@@ -20,24 +20,39 @@ function UpdateConstructionSiteListViaSortBy(sortBy) {
             document.getElementById('tableHeader-Description').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-OwnerName').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-OwnerEmail').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-State').className = "btn btn-outline.dark btn-sm w-100 w-md-auto";
             break;
         case "Description":
             document.getElementById('tableHeader-' + sortBy).className = "btn btn-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-Name').className = "btn btn-outline-dark btn-sm w-100 w-md-auto"; 
             document.getElementById('tableHeader-OwnerName').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-OwnerEmail').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-State').className = "btn btn-outline.dark btn-sm w-100 w-md-auto";
+
             break;
         case "OwnerName":
             document.getElementById('tableHeader-' + sortBy).className = "btn btn-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-OwnerEmail').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-Description').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-Name').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-State').className = "btn btn-outline.dark btn-sm w-100 w-md-auto";
+
             break;
         case "OwnerEmail":
             document.getElementById('tableHeader-' + sortBy).className = "btn btn-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-OwnerName').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-Description').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
             document.getElementById('tableHeader-Name').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-State').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+
+            break;
+        case "State":
+            document.getElementById('tableHeader-' + sortBy).className = "btn btn-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-OwnerName').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-Description').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-Name').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+            document.getElementById('tableHeader-OwnerEmail').className = "btn btn-outline-dark btn-sm w-100 w-md-auto";
+
             break;
 
     }

@@ -73,6 +73,9 @@ namespace Application.Data.ConstructionSites
                         ConstructionSiteSortBy.OwnerEmail => request.OrderBy == OrderByEnum.Descending ?
                         query.OrderByDescending(c => c.Owner.Email) : query.OrderBy(c => c.Owner.Email),
 
+                        ConstructionSiteSortBy.State => request.OrderBy == OrderByEnum.Descending ?
+                        query.OrderByDescending(c => c.IsActive) : query.OrderBy(c => c.IsActive),
+
                         _ => request.OrderBy == OrderByEnum.Descending ? //DEFAULT
                         query.OrderByDescending(c=>c.Id) : query.OrderBy(c=>c.Id),
                     };

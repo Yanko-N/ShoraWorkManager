@@ -6,6 +6,7 @@
         Name,
         Description,
         OwnerName,
-        OwnerEmail
+        OwnerEmail,
+        State
     }
 }

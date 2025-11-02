@@ -1,0 +1,36 @@
+﻿@using Application.Contracts.Response
+@model ConstructionSiteDetailsViewModel
+
+<button class="btn btn-outline-primary" onclick="GetAddNewWorkedHours(@Model.ConstructionSite.Id)"> Add New </button>
+
+<div class="alert alert-secondary mb-0">
+
+    @if (Model.WorkedHours.Count != 0)
+    {
+        <dl class="mb-0">
+            @foreach (var item in Model.WorkedHours)
+            {
+                <dt>
+                    @item.WorkerName
+                </dt>
+                <dd>
+                    Total @item.TotalHours hours
+                </dd>
+                <dd>
+                    Paid @item.PaidHours hours
+                </dd>
+                <dd>
+                    Unpaid @item.UnpaidHours hours
+                </dd>
+                <dd>
+                    <button class="btn btn-outline-danger"> Pay remaning hours</button>
+                </dd>
+            }
+        </dl>
+    }
+    else
+    {
+        <span> Empty </span>
+    }
+
+</div>

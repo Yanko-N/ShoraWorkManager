@@ -86,6 +86,13 @@ namespace Application.Data.ConstructionSites
                         return Result<ConstructionSite>.Failure("ConstructionSite not found.");
                     }
 
+
+                    if (!constructionSiteToUpdate.IsActive)
+                    {
+                        _logger.LogInformation($"The Inactive Construction Site {constructionSiteToUpdate.Id} was unsuccefuly alterated, because is inactive");
+                        return Result<ConstructionSite>.Failure("An Inactive Construction Site cannot be alterated");
+                    }
+
                     request.Description ??= string.Empty;
 
                     constructionSiteToUpdate.Name = request.Name;

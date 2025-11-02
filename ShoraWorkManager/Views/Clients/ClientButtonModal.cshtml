@@ -1,0 +1,35 @@
+﻿@model Persistence.Models.Client
+
+<button type="button"
+        class="btn btn-outline-secondary"
+        data-bs-toggle="modal"
+        data-bs-target="#ownerModal">
+    @Model.FirstName @Model.LastName
+</button>
+
+
+<div class="modal fade" id="ownerModal" tabindex="-1" aria-labelledby="ownerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ownerModalLabel">Owner info</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row mb-0">
+                    <dt class="col-4">Name</dt>
+                    <dd class="col-8">@Model.FirstName @Model.LastName</dd>
+
+                    <dt class="col-4">Email</dt>
+                    <dd class="col-8">@Model.Email</dd>
+
+                    <dt class="col-4">Phone</dt>
+                    <dd class="col-8">@Model.PhoneNumber</dd>
+                </dl>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -136,13 +136,17 @@
                     </th>
 
                     <th class="text-nowrap">
-                        <label class="btn btn-outline-dark btn-sm w-100 w-md-auto">
+                        <a id="tableHeader-@ConstructionSiteSortBy.State"
+                           class="btn btn-outline-dark btn-sm w-100 w-md-auto"
+                           onclick="UpdateConstructionSiteListViaSortBy('@ConstructionSiteSortBy.State')">
                             Is Active
-                        </label>
+                        </a>
                     </th>
 
                     <th class="text-nowrap"></th>
                     <th class="text-nowrap"></th>
+                    <th class="text-nowrap"></th>
+
                 </tr>
             </thead>
             <tbody id="ConstructionSitesListing">

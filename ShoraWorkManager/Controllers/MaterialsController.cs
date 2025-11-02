@@ -219,5 +219,28 @@ namespace ShoraWorkManager.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> GetMaterialsFromContructionSite(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var clientGetResult = await _mediator.Send(new GetMaterial.Query
+            {
+                Id = (int)id
+            });
+
+            if (!clientGetResult.IsSuccess)
+            {
+                return NotFound();
+            }
+
+            return PartialView(clientGetResult.Value);
+
+        }
+
+
     }
 }
