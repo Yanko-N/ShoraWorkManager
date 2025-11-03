@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Persistence.Models.Payment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorsMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorsMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-3">
+        <a id="manage"
+           class="btn btn-outline-dark"
+           asp-action="Details"
+           asp-controller="ConstructionSites"
+           asp-route-id="@ViewBag.ConstructionSiteId"
+           title="Back to Manage">
+            Go Back
+        </a>
+        <h1 class="h4 mb-0">Payments for the worker @ViewBag.WorkerName at @ViewBag.ConstructionSiteName</h1>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Payed Value
+            </th>
+            <th>
+                Payment Date
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PayedAt)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

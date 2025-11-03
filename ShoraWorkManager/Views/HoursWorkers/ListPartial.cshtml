@@ -23,7 +23,15 @@
                     Unpaid @item.UnpaidHours hours
                 </dd>
                 <dd>
-                    <button class="btn btn-outline-danger"> Pay remaning hours</button>
+                    <form asp-action="PayWorker" asp-controller="Payments">
+                        <input type="hidden" name="workerId" value="@item.WorkerId"/>
+                        <input type="hidden" name="constructionId" value="@Model.ConstructionSite.Id"/>
+                        <button type="submit" class="btn btn-outline-danger"> Pay remaning hours</button>
+                    </form>
+
+                    <a asp-action="Index" asp-controller="Payments" asp-route-constructionId="@Model.ConstructionSite.Id" asp-route-workerId="@item.WorkerId" class="btn btn-outline-primary">
+                        See Payments 
+                    </a>
                 </dd>
             }
         </dl>

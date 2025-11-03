@@ -3,11 +3,11 @@ using Application.Contracts.Response;
 using Application.Data.Clientes;
 using Application.Data.ConstructionSites;
 using Application.Data.MaterialMoviments;
+using Application.Data.WorkedHours;
 using Application.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Persistence.Models;
 using ShoraWorkManager.Models;
 
@@ -276,10 +276,25 @@ namespace ShoraWorkManager.Controllers
                 return BadRequest(materialsMoviments.ToString());
             }
 
+            var workedHours = await _mediator.Send(new GetWorkedHoursFromConstructionSite.Query()
+            {
+                ConstructionId = (int)id
+            });
+
+            if (!workedHours.IsSuccess)
+            {
+                return BadRequest(workedHours.ToString());
+            }
+
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
+
             var viewModel = new ConstructionSiteDetailsViewModel()
             {
                 ConstructionSite = constructionSiteResult.Value,
-                MaterialMovements = materialsMoviments.Value
+                MaterialMovements = materialsMoviments.Value,
+                WorkedHours = workedHours.Value
             };
 
             return View(viewModel);
