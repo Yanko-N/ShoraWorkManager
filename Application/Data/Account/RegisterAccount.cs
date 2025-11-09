@@ -101,7 +101,19 @@ namespace Application.Data.Account
 
                     if (result.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(user, AppConstants.Roles.ADMIN);
+                        await _userManager.AddToRoleAsync(user, AppConstants.Roles.USER);
+
+
+                        Result<AuthorizationToken> consumeLastToken = await _mediator.Send(new ConsumeLastToken.Command()
+                        {
+                            Token = request.AuthorizationToken
+                        });
+
+                        if (consumeLastToken.IsFailure)
+                        {
+                            _logger.LogCritical("Error when consuming the auth token!");
+                        }
+
 
                         _logger.LogInformation("User created a new account with password.");
                         var userId = await _userManager.GetUserIdAsync(user);

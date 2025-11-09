@@ -69,7 +69,7 @@ namespace Application.Data.MaterialMoviments
                         }
                     }
 
-                    var newAvaiableQuantity = material.AvailableQuantity + request.Quantity;
+                    var newAvaiableQuantity = material.AvailableQuantity - request.Quantity;
 
                     material.AvailableQuantity = newAvaiableQuantity;
                     _context.Material.Update(material);

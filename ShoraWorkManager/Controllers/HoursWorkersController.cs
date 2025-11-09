@@ -1,30 +1,23 @@
-﻿using Application.Data.ConstructionSites;
-using Application.Data.MaterialMoviments;
-using Application.Data.Materials;
+﻿using Application.Core;
+using Application.Data.ConstructionSites;
 using Application.Data.WorkedHours;
 using Application.Data.Workers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Persistence.Data;
 using Persistence.Models;
 using ShoraWorkManager.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ShoraWorkManager.Controllers
 {
+    [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class HoursWorkersController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IMediator _mediator;
-        public HoursWorkersController(IMediator mediator, ApplicationDbContext context)
+        public HoursWorkersController(IMediator mediator)
         {
             _mediator = mediator;
-            _context = context;
         }
 
         public async Task<IActionResult> GetTheWorkedHoursIndex(int? id)

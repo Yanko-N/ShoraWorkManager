@@ -1,23 +1,23 @@
-﻿using Application.Data.ConstructionSites;
+﻿using Application.Core;
+using Application.Data.ConstructionSites;
 using Application.Data.MaterialMoviments;
 using Application.Data.Materials;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Persistence.Data;
 using Persistence.Models;
 using ShoraWorkManager.Models;
 
 namespace ShoraWorkManager.Controllers
 {
+    [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class MaterialMovementsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IMediator _mediator;
-        public MaterialMovementsController(IMediator mediator,ApplicationDbContext context)
+        public MaterialMovementsController(IMediator mediator)
         {
             _mediator = mediator;
-            _context = context;
         }
 
         public async Task<IActionResult> MaterialMovementRegistry(int? id)

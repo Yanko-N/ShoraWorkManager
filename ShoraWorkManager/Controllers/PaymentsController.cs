@@ -1,12 +1,15 @@
 ﻿using Application.Contracts.Request;
+using Application.Core;
 using Application.Data.ConstructionSites;
 using Application.Data.Payments;
 using Application.Data.Workers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ShoraWorkManager.Controllers
 {
+    [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class PaymentsController : Controller
     {
 

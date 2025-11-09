@@ -83,7 +83,7 @@ namespace ShoraWorkManager.Controllers
 
             if (!result.IsSuccess)
             {
-                return PartialView("MaterialsListingPartial", PaginatedList<Material>.Empty());
+                return PartialView("MaterialListingPartial", PaginatedList<Material>.Empty());
             }
 
             // Repassa os parâmetros atuais para a View (para manter os filtros )
@@ -99,7 +99,7 @@ namespace ShoraWorkManager.Controllers
                 new SelectListItem { Value = nameof(OrderByEnum.Descending), Text = "Descending" }
             };
 
-            return PartialView("MaterialsListingPartial", result.Value);
+            return PartialView("MaterialListingPartial", result.Value);
         }
 
         public IActionResult Create()

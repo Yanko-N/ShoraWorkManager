@@ -1,11 +1,13 @@
 ﻿using Application.Contracts.Request;
 using Application.Contracts.Response;
+using Application.Core;
 using Application.Data.Clientes;
 using Application.Data.ConstructionSites;
 using Application.Data.MaterialMoviments;
 using Application.Data.WorkedHours;
 using Application.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Persistence.Models;
@@ -13,6 +15,7 @@ using ShoraWorkManager.Models;
 
 namespace ShoraWorkManager.Controllers
 {
+    [Authorize(Roles = AppConstants.Roles.ALL_ROLES)]
     public class ConstructionSitesController : Controller
     {
         private readonly IMediator _mediator;
