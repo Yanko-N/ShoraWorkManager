@@ -1,6 +1,7 @@
 ﻿using Domain.Exceptions;
+using Domain.Validators.Interfaces;
 
-namespace Domain.Validators.Interfaces
+namespace Domain.Validators
 {
     public class CoordenatesValidator : IDataValidator<CoordenatesValidator.CoordenatesInput>
     {

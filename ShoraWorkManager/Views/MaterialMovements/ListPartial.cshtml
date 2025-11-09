@@ -1,31 +1,66 @@
 ﻿@using Application.Contracts.Response
 @model ConstructionSiteDetailsViewModel
 
-<button class="btn btn-outline-primary" onclick="GetAddNewMaterial(@Model.ConstructionSite.Id)"> Add New </button>
-<a asp-action="MaterialMovementRegistry" asp-controller="MaterialMovements"
-   asp-route-id="@Model.ConstructionSite.Id" class="btn btn-outline-danger" > 
-Open Registry
-</a>
+<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">@Model.ConstructionSite.Name — Materials</h5>
 
-<div class="alert alert-secondary mb-0">
+    <div class="btn-group">
+        <button class="btn btn-primary" onclick="GetAddNewMaterial(@Model.ConstructionSite.Id)">
+            <i class="bi bi-plus-lg"></i> Add New Material to Site
+        </button>
 
-    @if(Model.MaterialMovements.Count != 0)
-    {
-        <dl class="mb-0">
-            @foreach (var item in Model.MaterialMovements)
-            {
-                <dt>
-                    @item.MaterialName
-                </dt>
-                <dd>
-                    @item.Quantity
-                </dd>
-            }
-        </dl>
-    }
-    else
-    {
-        <span> Empty </span>
-    }
-
+        <a asp-action="MaterialMovementRegistry"
+           asp-controller="MaterialMovements"
+           asp-route-id="@Model.ConstructionSite.Id"
+           class="btn btn-outline-danger">
+            <i class="bi bi-journal-text"></i> Open Registry
+        </a>
+    </div>
 </div>
+
+@if (Model.MaterialMovements?.Count > 0)
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+        @foreach (var item in Model.MaterialMovements)
+        {
+            if(item.Quantity == 0)
+            {
+                continue;
+            }
+
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold text-truncate">@item.MaterialName</span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">Quantity on Site</div>
+                            <span class="badge rounded-pill text-dark">@item.Quantity</span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent d-flex justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary"
+                                onclick="GetAddNewMaterial(@Model.ConstructionSite.Id)">
+                            Adjust Quantity
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary d-flex align-items-center" role="alert">
+        <i class="bi bi-box-seam me-2"></i>
+        <div>No materials recorded for this construction site yet.</div>
+        <button class="btn btn-sm btn-outline-primary ms-auto"
+                onclick="GetAddNewMaterial(@Model.ConstructionSite.Id)">
+            Add first material
+        </button>
+    </div>
+}
+

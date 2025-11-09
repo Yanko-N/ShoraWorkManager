@@ -77,9 +77,13 @@ namespace ShoraWorkManager.Controllers
                 TempData["errorsMessages"] = resultPayment.IsFailure ? resultPayment.Errors.ToList() : new List<string>();
                 TempData["statusMessages"] = resultPayment.IsFailure ? new List<string>() : new List<string>() { $"Sucess creating the payment" };
 
-                if (resultPayment.IsFailure)
+                if (!resultPayment.IsSuccess)
                 {
-                    return RedirectToAction("Details", "ConstructionSites", request.ConstructionId);
+                    return RedirectToAction(
+                        nameof(ConstructionSitesController.Details),
+                        "ConstructionSites",
+                        new { id = request.ConstructionId}
+                    );
                 }
 
                 return RedirectToAction(
@@ -92,7 +96,11 @@ namespace ShoraWorkManager.Controllers
                 TempData["errorsMessages"] = new List<string>() { $"Error when creating new Payment"};
                 TempData["statusMessages"] = new List<string>();
 
-                return RedirectToAction("Details","ConstructionSites",request.ConstructionId);
+                return RedirectToAction(
+                    nameof(ConstructionSitesController.Details),
+                    "ConstructionSites",
+                    new { id = request.ConstructionId }
+                );
             }
         }
     }

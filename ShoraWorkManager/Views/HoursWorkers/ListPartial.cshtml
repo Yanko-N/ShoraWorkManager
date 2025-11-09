@@ -1,44 +1,89 @@
 ﻿@using Application.Contracts.Response
 @model ConstructionSiteDetailsViewModel
 
-<button class="btn btn-outline-primary" onclick="GetAddNewWorkedHours(@Model.ConstructionSite.Id)"> Add New </button>
-
-<div class="alert alert-secondary mb-0">
-
-    @if (Model.WorkedHours.Count != 0)
-    {
-        <dl class="mb-0">
-            @foreach (var item in Model.WorkedHours)
-            {
-                <dt>
-                    @item.WorkerName
-                </dt>
-                <dd>
-                    Total @item.TotalHours hours
-                </dd>
-                <dd>
-                    Paid @item.PaidHours hours
-                </dd>
-                <dd>
-                    Unpaid @item.UnpaidHours hours
-                </dd>
-                <dd>
-                    <form asp-action="PayWorker" asp-controller="Payments">
-                        <input type="hidden" name="workerId" value="@item.WorkerId"/>
-                        <input type="hidden" name="constructionId" value="@Model.ConstructionSite.Id"/>
-                        <button type="submit" class="btn btn-outline-danger"> Pay remaning hours</button>
-                    </form>
-
-                    <a asp-action="Index" asp-controller="Payments" asp-route-constructionId="@Model.ConstructionSite.Id" asp-route-workerId="@item.WorkerId" class="btn btn-outline-primary">
-                        See Payments 
-                    </a>
-                </dd>
-            }
-        </dl>
-    }
-    else
-    {
-        <span> Empty </span>
-    }
-
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">@Model.ConstructionSite.Name</h5>
+    <button class="btn btn-primary" onclick="GetAddNewWorkedHours(@Model.ConstructionSite.Id)">
+        <i class="bi bi-plus-lg"></i> Add New
+    </button>
 </div>
+
+@if (Model.WorkedHours?.Count > 0)
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        @foreach (var item in Model.WorkedHours)
+        {
+            var total = item.TotalHours;
+            var paid = item.PaidHours;
+            var unpaid = item.UnpaidHours;
+            var percertagem = total > 0 ? Math.Round((float)paid / total * 100, 0) : 0;
+
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">@item.WorkerName</span>
+                        <span class="badge text-bg-secondary">ID: @item.WorkerId</span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small">
+                                <span>Paid</span>
+                                <span>@percertagem%</span>
+                            </div>
+                            <div class="progress" role="progressbar" aria-valuenow="@(percertagem)" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width:@percertagem%"></div>
+                            </div>
+                        </div>
+
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total
+                                <span class="badge text-dark">@total h</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Paid
+                                <span class="badge text-dark">@paid h</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Unpaid
+                                <span class="badge text-dark">@unpaid h</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex gap-2">
+                            <form asp-action="PayWorker" asp-controller="Payments" class="m-0">
+                                <input type="hidden" name="workerId" value="@item.WorkerId" />
+                                <input type="hidden" name="constructionId" value="@Model.ConstructionSite.Id" />
+                                <button type="submit" class="btn btn-outline-danger" @(unpaid <= 0 ? "disabled" : null)>
+                                    Pay remaining hours
+                                </button>
+                            </form>
+
+                            <a asp-action="Index"
+                               asp-controller="Payments"
+                               asp-route-constructionId="@Model.ConstructionSite.Id"
+                               asp-route-workerId="@item.WorkerId"
+                               class="btn btn-outline-primary">
+                                See payments
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary d-flex align-items-center" role="alert">
+        <i class="bi bi-inbox me-2"></i>
+        <div>No worked hours yet for this construction site.</div>
+        <button class="btn btn-sm btn-outline-primary ms-auto"
+                onclick="GetAddNewWorkedHours(@Model.ConstructionSite.Id)">
+            Add first entry
+        </button>
+    </div>
+}

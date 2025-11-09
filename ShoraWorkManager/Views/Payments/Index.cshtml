@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Index";
+
+    float sum = Model.Sum(x => x.Value);
 }
 
 @if (ViewBag.statusMessages != null)
@@ -67,3 +69,5 @@
 }
     </tbody>
 </table>
+
+<p>Total : @sum.ToString("F2")</p>
