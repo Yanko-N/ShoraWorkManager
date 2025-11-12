@@ -19,7 +19,7 @@ namespace ShoraWorkManager
             var app = builder.Build();
 
             //Seed the Web Application
-            app.AddWebApplicationExtras();
+            app.AddWebApplicationExtras(builder.Configuration);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

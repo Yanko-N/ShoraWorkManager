@@ -1,6 +1,8 @@
 ﻿using Application.Core;
+using Application.Data.Account;
 using Application.Data.Roles;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using Persistence.Models;
@@ -24,7 +26,8 @@ namespace ShoraWorkManager.Extensions
                 options.SignIn.RequireConfirmedAccount = false;
                 })
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             // Registar MediaR através da assembly
             var applicationAssembly = typeof(AppSettings).Assembly;
@@ -43,20 +46,27 @@ namespace ShoraWorkManager.Extensions
 
         
 
-        public static WebApplication AddWebApplicationExtras(this WebApplication application)
+        public static WebApplication AddWebApplicationExtras(this WebApplication application, IConfiguration config)
         {
-            SeedRolesExtension(application);
+            SeedRolesExtension(application,config);
 
             return application;
         }
 
-        private static WebApplication SeedRolesExtension(this WebApplication application)
+        private static WebApplication SeedRolesExtension(this WebApplication application, IConfiguration config)
         {
             using (var scope = application.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                var userStore = scope.ServiceProvider.GetRequiredService<IUserStore<User>>();
+                var emailStore = (IUserEmailStore<User>)userStore;
+
 
                 SeedRoles.Seed(roleManager);
+                SeedAdmin.Seed(userStore,emailStore,userManager, config);
+
+
                 return application;
             }
         }

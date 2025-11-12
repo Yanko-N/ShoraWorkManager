@@ -101,7 +101,7 @@ namespace Application.Data.Account
 
                     if (result.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(user, AppConstants.Roles.USER);
+                        await _userManager.AddToRoleAsync(user, AppConstants.Roles.ADMIN);
 
 
                         Result<AuthorizationToken> consumeLastToken = await _mediator.Send(new ConsumeLastToken.Command()
