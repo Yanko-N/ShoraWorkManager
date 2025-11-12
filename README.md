@@ -81,12 +81,9 @@ A aplicação implementa boas práticas de segurança, como:
 - **Validações** de entrada de dados com **DataAnnotations**.
 - **Anti-forgery tokens** para prevenir ataques CSRF.
 - **Autenticação e Autorização** com base em **ASP.NET Identity** e **JWT tokens**.
-- **Sanitização** de entradas para evitar vulnerabilidades de injeção de código.
+- **Limpeza** de entradas de dados para evitar vulnerabilidades de injeção de código.
 
 ## Conclusão
 
 O **Shora Work Manager** oferece uma solução eficaz para gerenciar projetos de obras, com um foco em eficiência na gestão de recursos e segurança dos dados. A aplicação está estruturada para ser escalável e fácil de manter, com uma arquitetura clara e modular que permite a adição de novas funcionalidades de forma simples.
 
-## Licença
-
-Este projeto está licenciado sob a [MIT License](LICENSE).
